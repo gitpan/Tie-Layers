@@ -10,25 +10,24 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.02';
-$DATE = '2004/05/09';
+$VERSION = '0.04';
+$DATE = '2004/05/10';
 $FILE = __FILE__;
 
 use vars qw(%INVENTORY);
 %INVENTORY = (
-    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
-    'MANIFEST' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
-    'Makefile.PL' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
-    'README' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
-    'lib/Tie/Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
-    't/Tie/Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
-    't/Tie/Layers.t' => [qw(0.02 2004/05/09), 'revised 0.01'],
-    't/Tie/Layers.d' => [qw(0.02 2004/05/09), 'revised 0.01'],
-    't/Tie/File/Package.pm' => [qw(1.16 2004/05/09), 'unchanged'],
-    't/Tie/Test/Tech.pm' => [qw(1.22 2004/05/09), 'unchanged'],
-    't/Tie/Data/Secs2.pm' => [qw(1.2 2004/05/09), 'revised 1.19'],
-    't/Tie/Data/SecsPack.pm' => [qw(0.05 2004/05/09), 'revised 0.04'],
-    't/Tie/Data/Startup.pm' => [qw(0.04 2004/05/09), 'unchanged'],
+    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.04 2004/05/10), 'revised 0.03'],
+    'MANIFEST' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
+    'Makefile.PL' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
+    'README' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
+    'lib/Tie/Layers.pm' => [qw(0.04 2004/05/10), 'revised 0.03'],
+    't/Tie/Layers.pm' => [qw(0.01 2004/05/09), 'unchanged'],
+    't/Tie/Layers.t' => [qw(0.01 2004/05/09), 'unchanged'],
+    't/Tie/Layers.d' => [qw(0.01 2004/05/09), 'unchanged'],
+    't/Tie/File/Package.pm' => [qw(1.16 2004/05/10), 'unchanged'],
+    't/Tie/Test/Tech.pm' => [qw(1.22 2004/05/10), 'unchanged'],
+    't/Tie/Data/Secs2.pm' => [qw(1.2 2004/05/10), 'unchanged'],
+    't/Tie/Data/SecsPack.pm' => [qw(0.05 2004/05/10), 'unchanged'],
 
 );
 
@@ -55,17 +54,17 @@ use vars qw(%INVENTORY);
 
  Tie::Layers - read and write files pipelined through a stack of subroutine layers
 
- Revision: A
+ Revision: C
 
- Version: 0.02
+ Version: 0.04
 
- Date: 2004/05/09
+ Date: 2004/05/10
 
  Prepared for: General Public 
 
  Prepared by:  SoftwareDiamonds.com E<lt>support@SoftwareDiamonds.comE<gt>
 
- Copyright: copyright © 2003 Software Diamonds
+ Copyright: copyright 2004 Software Diamonds
 
  Classification: NONE
 
@@ -102,7 +101,7 @@ in the underlying file and not the character position in the file.
 
 =head2 1.3 Document overview.
 
-This document releases Tie::Layers version 0.02
+This document releases Tie::Layers version 0.04
 providing a description of the inventory, installation
 instructions and other information necessary to
 utilize and track this release.
@@ -117,7 +116,7 @@ system file specification.
 
 This document releases the file 
 
- Tie-Layers-0.02.tar.gz
+ Tie-Layers-0.04.tar.gz
 
 found at the following repository(s):
 
@@ -131,7 +130,7 @@ are as follows:
 
 =item Copyright.
 
-copyright © 2003 Software Diamonds
+copyright 2004 Software Diamonds
 
 =item Copyright holder contact.
 
@@ -189,19 +188,18 @@ consists of the following files:
 
  file                                                         version date       comment
  ------------------------------------------------------------ ------- ---------- ------------------------
- lib/Docs/Site_SVD/Tie_Layers.pm                              0.02    2004/05/09 revised 0.01
- MANIFEST                                                     0.02    2004/05/09 generated, replaces 0.01
- Makefile.PL                                                  0.02    2004/05/09 generated, replaces 0.01
- README                                                       0.02    2004/05/09 generated, replaces 0.01
- lib/Tie/Layers.pm                                            0.02    2004/05/09 revised 0.01
- t/Tie/Layers.pm                                              0.02    2004/05/09 revised 0.01
- t/Tie/Layers.t                                               0.02    2004/05/09 revised 0.01
- t/Tie/Layers.d                                               0.02    2004/05/09 revised 0.01
- t/Tie/File/Package.pm                                        1.16    2004/05/09 unchanged
- t/Tie/Test/Tech.pm                                           1.22    2004/05/09 unchanged
- t/Tie/Data/Secs2.pm                                          1.2     2004/05/09 revised 1.19
- t/Tie/Data/SecsPack.pm                                       0.05    2004/05/09 revised 0.04
- t/Tie/Data/Startup.pm                                        0.04    2004/05/09 unchanged
+ lib/Docs/Site_SVD/Tie_Layers.pm                              0.04    2004/05/10 revised 0.03
+ MANIFEST                                                     0.04    2004/05/10 generated, replaces 0.03
+ Makefile.PL                                                  0.04    2004/05/10 generated, replaces 0.03
+ README                                                       0.04    2004/05/10 generated, replaces 0.03
+ lib/Tie/Layers.pm                                            0.04    2004/05/10 revised 0.03
+ t/Tie/Layers.pm                                              0.01    2004/05/09 unchanged
+ t/Tie/Layers.t                                               0.01    2004/05/09 unchanged
+ t/Tie/Layers.d                                               0.01    2004/05/09 unchanged
+ t/Tie/File/Package.pm                                        1.16    2004/05/10 unchanged
+ t/Tie/Test/Tech.pm                                           1.22    2004/05/10 unchanged
+ t/Tie/Data/Secs2.pm                                          1.2     2004/05/10 unchanged
+ t/Tie/Data/SecsPack.pm                                       0.05    2004/05/10 unchanged
 
 
 =head2 3.3 Changes
@@ -220,6 +218,14 @@ Sometimes get a C<DESTROY> when coming out of C<TIEHANDLE>. Do not
 want C<TIEHANDLE> going around closing stuff, especially for an
 C<OPEN> with a file handle like C<DATA>. 
 If something needs closing, call CLOSE directly.  
+
+=item Tie::Layers-0.03
+
+Added C<Data::Startup> as perquisite.
+
+=item Tie::Layers-0.04
+
+Perquisite did not make it into 0.03. Try again.
 
 =back
 
@@ -259,13 +265,13 @@ Enter one of the following repositories in a web browser:
   http://www.softwarediamonds/packages/
   http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-Right click on 'Tie-Layers-0.02.tar.gz' and download to a temporary
+Right click on 'Tie-Layers-0.04.tar.gz' and download to a temporary
 installation directory.
 Enter the following where $make is 'nmake' for microsoft
 windows; otherwise 'make'.
 
- gunzip Tie-Layers-0.02.tar.gz
- tar -xf Tie-Layers-0.02.tar
+ gunzip Tie-Layers-0.04.tar.gz
+ tar -xf Tie-Layers-0.04.tar
  perl Makefile.PL
  $make test
  $make install
@@ -278,7 +284,7 @@ not install, download and install unxutils from
 
 =item Prerequistes.
 
- None.
+ 'Data::Startup' => '0.02',
 
 
 =item Security, privacy, or safety precautions.
@@ -342,17 +348,17 @@ extension for a Perl test script file
 
 __DATA__
 DISTNAME: Tie-Layers^
-VERSION : 0.02^
+VERSION : 0.04^
 FREEZE: 1^
 PREVIOUS_DISTNAME: ^
-PREVIOUS_RELEASE: 0.01^
-REVISION: A ^
+PREVIOUS_RELEASE: 0.03^
+REVISION: C ^
 
 AUTHOR  : SoftwareDiamonds.com E<lt>support@SoftwareDiamonds.comE<gt>^
 ABSTRACT: read and write files pipelined through a stack of subroutine layers^
 TITLE   : Tie::Layers - read and write files pipelined through a stack of subroutine layers^
 END_USER: General Public^
-COPYRIGHT: copyright © 2003 Software Diamonds^
+COPYRIGHT: copyright 2004 Software Diamonds^
 CLASSIFICATION: NONE^
 TEMPLATE:  ^
 CSS: help.css^
@@ -379,12 +385,13 @@ lib/File/Package.pm => t/Tie/File/Package.pm
 lib/Test/Tech.pm => t/Tie/Test/Tech.pm
 lib/Data/Secs2.pm => t/Tie/Data/Secs2.pm
 lib/Data/SecsPack.pm => t/Tie/Data/SecsPack.pm
-lib/Data/Startup.pm => t/Tie/Data/Startup.pm
 ^
 
 REPLACE:  ^
 
-PREREQ_PM:  ^
+PREREQ_PM: 
+'Data::Startup' => '0.02',
+^
 README_PODS: lib/Tie/Layers.pm^
 
 TESTS: t/Tie/Layers.t^
@@ -405,6 +412,14 @@ Sometimes get a C<DESTROY> when coming out of C<TIEHANDLE>. Do not
 want C<TIEHANDLE> going around closing stuff, especially for an
 C<OPEN> with a file handle like C<DATA>. 
 If something needs closing, call CLOSE directly.  
+
+\=item Tie::Layers-0.03
+
+Added C<Data::Startup> as perquisite.
+
+\=item Tie::Layers-0.04
+
+Perquisite did not make it into 0.03. Try again.
 
 \=back
 
@@ -545,6 +560,10 @@ SEE_ALSO:
 HTML:
 ^
 ~-~
+
+
+
+
 
 
 

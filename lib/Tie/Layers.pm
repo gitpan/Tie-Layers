@@ -10,11 +10,12 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.02';
-$DATE = '2004/05/09';
+$VERSION = '0.04';
+$DATE = '2004/05/10';
 $FILE = __FILE__;
 
 use File::Spec;
+use Data::Startup 0.02;
 
 use Exporter;
 use vars qw(@ISA @EXPORT_OK);
@@ -940,7 +941,7 @@ follow on the next lines as comments. For example,
      $version = '' unless $version;
 
  ##################
- # Tie::Layers Version 0.01 loaded
+ # Tie::Layers Version 0.03 loaded
  # 
 
  $fp->is_package_loaded($uut)
