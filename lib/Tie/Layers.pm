@@ -10,8 +10,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.01';
-$DATE = '2004/05/07';
+$VERSION = '0.02';
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 use File::Spec;
@@ -20,7 +20,6 @@ use Exporter;
 use vars qw(@ISA @EXPORT_OK);
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(is_handle);
-
 
 use vars qw($default_options);
 $default_options =  Tie::Layers->defaults();
@@ -119,7 +118,9 @@ sub is_handle
 		and defined fileno($fh)  )
 }
 
-
+####
+#
+#
 sub layer_readline
 {
     my ($self) = @_;
@@ -138,7 +139,10 @@ sub BINMODE
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
         $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::FilePort::BINMODE() $VERSION\n";
+        $self->{event} .= "\tTie::Layers::BINMODE() $VERSION\n";
+        if($self->{warn}) {
+            warn($self->{event});
+        }
         return undef;
      }
      binmode $fh;
@@ -167,7 +171,10 @@ sub CLOSE
 
 EVENT:
      $self->{event} .= $event;
-     $self->{event} .= "\tTie::FilePort::CLOSE() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::CLOSE() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -177,8 +184,13 @@ EVENT:
 #
 sub DESTROY
 {
-    CLOSE( @_ );
- 
+   ######
+   #  Sometimes get a DESTROY when coming out of TIEHANDLE. Do not
+   #  want TIEHANDLE going around closing stuff, especially when use
+   #  OPEN with a fh. Need to close something, call CLOSE directly.  
+   #
+   #  CLOSE( @_ );
+   #
 }
 
 #####
@@ -191,7 +203,10 @@ sub EOF
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
         $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::FilePort::EOF() $VERSION\n";
+        $self->{event} .= "\tTie::Layers::EOF() $VERSION\n";
+        if($self->{warn}) {
+            warn($self->{event});
+        }
         return undef;
      }
      eof($fh);
@@ -210,7 +225,10 @@ sub FILENO
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
         $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::FilePort::FILENO() $VERSION\n";
+        $self->{event} .= "\tTie::Layers::FILENO() $VERSION\n";
+        if($self->{warn}) {
+            warn($self->{event});
+        }
         return undef;
      }
      fileno($fh);
@@ -225,8 +243,10 @@ sub GETC
      my $self = shift; 
      return undef if $self->{event} =~ /GETC not supported/;
      $self->{event} .= "GETC not supported.\n";
-     $self->{event} .= "\tTie::FilePort::READ() $VERSION\n";
-     return undef;
+     $self->{event} .= "\tTie::Layers::READ() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -303,7 +323,10 @@ sub OPEN
 
 EVENT:
      $self->{event} = $event;
-     $self->{event} .= "\tTie::FilePort::OPEN() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::OPEN() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -355,7 +378,10 @@ sub PRINT
 
 EVENT:
      $self->{event} .= $self->{current_event};
-     $self->{event} .= "\tTie::FilePort::PRINT() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::PRINT() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -377,7 +403,10 @@ sub READ
      my $self = shift; 
      return undef if $self->{event} =~ /READ not supported/;
      $self->{event} .= "READ not supported.\n";
-     $self->{event} .= "\tTie::FilePort::READ() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::READ() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -419,7 +448,10 @@ sub READLINE
 
 EVENT:
      $self->{event} .= $self->{current_event};
-     $self->{event} .= "\tTie::FilePort::READLINE() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::READLINE() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -470,7 +502,10 @@ sub SEEK
 
 
 EVENT:
-     $self->{event} .= "\tTie::FilePort::SEEK() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::SEEK() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -515,7 +550,10 @@ sub WRITE
      my $self = shift; 
      return undef if $self->{event} =~ /WRITE not supported/;
      $self->{event} .= "WRITE not supported.\n";
-     $self->{event} .= "\tTie::FilePort::WRITE() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::WRITE() $VERSION\n";
+     if($self->{warn}) {
+         warn($self->{event});
+     }
      undef;
 }
 
@@ -537,14 +575,20 @@ __END__
 
  $yes = is_handle( $file_handle );
 
- #####
- # Tied Handle interface
- #
  require Tie::Layers;
 
+ #####
+ # Using support methods and file handle with
+ # the file subroutines such as open(), readline()
+ # print(), close()
+ #
  tie *LAYERS_FILEHANDLE, 'Tie::Layers', @options
+ $layers = tied \*LAYERS_FILEHANDLE; 
 
- $layers = tied \*LAYERS_FILEHANDLE;
+ #####
+ # Using support methods only, no file subroutines
+ # 
+ $layers = Tie::Layers->TIEHANDLE(@options);
 
  $data = $layers->fin($filename, @options);
 
@@ -881,101 +925,6 @@ follow on the next lines as comments. For example,
          $self->{current_event} = $! unless($success);
          $success;
      }
-
-     my $test_data1 = 
- "layer 0: put_record
- layer 1: encode_record
- layer 2: encode_field
- field1: value1
- field2: value2
- option binary: 0
- option warn: 1
- \~-\~
- layer 0: put_record
- layer 1: encode_record
- layer 2: encode_field
- field3: value3
- option binary: 0
- option warn: 1
- \~-\~
- layer 0: put_record
- layer 1: encode_record
- layer 2: encode_field
- field4: value4
- field5: value5
- field6: value6
- option binary: 0
- option warn: 1
- \~-\~
- ";
-
- my @test_data2 = (
-      'layer 2',
-      'decode_field',
-      'layer 1',
-      'decode_record',
-      'layer 0',
-      'get_record',
-      'layer 0',
-      'put_record',
-      'layer 1',
-      'encode_record',
-      'layer 2',
-      'encode_field',
-      'field1',
-      'value1',
-      'field2',
-      'value2',
-      'option binary',
-      0,
-      'option warn',
-      1);
-
- my @test_data3 = (
-      'layer 2',
-      'decode_field',
-      'layer 1',
-      'decode_record',
-      'layer 0',
-      'get_record',
-      'layer 0',
-      'put_record',
-      'layer 1',
-      'encode_record',
-      'layer 2',
-      'encode_field',
-      'field3',
-      'value3',  
-      'option binary',
-      0,
-      'option warn',
-      1  
- );
-
- my @test_data4 = (
-      'layer 2',
-      'decode_field',
-      'layer 1',
-      'decode_record',
-      'layer 0',
-      'get_record',
-      'layer 0',
-      'put_record',
-      'layer 1',
-      'encode_record',
-      'layer 2',
-      'encode_field',
-      'field4',
-      'value4',
-      'field5',
-      'value5', 
-      'field6',
-      'value6',  
-      'option binary',
-      0,
-      'option warn',
-      1);
-
      my (@records, $record);   # force context
 
  ##################
@@ -1359,9 +1308,9 @@ from the C<t::Tie::Layers> program module contents.
 The C<tmake.pl> cover script automatically ran the
 C<Layers.d> demo script and inserted the results
 into the 'DEMONSTRATION' section above.
-The  C<t::File::Layers> program module
+The  C<t::Tie::Layers> program module
 is in the distribution file
-F<File-Layers-$VERSION.tar.gz>.
+F<Tie-Layers-$VERSION.tar.gz>.
 
 =head1 NOTES
 

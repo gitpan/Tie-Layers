@@ -10,8 +10,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.01';
-$DATE = '2004/05/07';
+$VERSION = '0.02';
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 ########
@@ -40,7 +40,7 @@ $FILE = __FILE__;
 
  Version: 
 
- Date: 2004/05/07
+ Date: 2004/05/09
 
  Prepared for: General Public 
 
@@ -230,6 +230,10 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
          $self->{current_event} = $! unless($success);
          $success;
      }
+     my (@records, $record);   # force context
+ ^
+
+ QC:
      my $test_data1 = 
  "layer 0: put_record
  layer 1: encode_record
@@ -321,8 +325,6 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
       0,
       'option warn',
       1);
-  
-     my (@records, $record);   # force context
  ^
  VO: ^
   N: UUT not loaded^
@@ -768,7 +770,11 @@ Verify: Layers.t^
         $self->{current_event} = $! unless($success);
         $success;
     }
+    my (@records, $record);   # force context
+^
 
+
+QC:
     my $test_data1 = 
 "layer 0: put_record
 layer 1: encode_record
@@ -863,9 +869,6 @@ my @test_data4 = (
      0,
      'option warn',
      1);
-
- 
-    my (@records, $record);   # force context
 ^
 
 VO: ^

@@ -9,14 +9,20 @@ SYNOPSIS
 
      $yes = is_handle( $file_handle );
 
-     #####
-     # Tied Handle interface
-     #
      require Tie::Layers;
 
+     #####
+     # Using support methods and file handle with
+     # the file subroutines such as open(), readline()
+     # print(), close()
+     #
      tie *LAYERS_FILEHANDLE, 'Tie::Layers', @options
+     $layers = tied \*LAYERS_FILEHANDLE; 
 
-     $layers = tied \*LAYERS_FILEHANDLE;
+     #####
+     # Using support methods only, no file subroutines
+     # 
+     $layers = Tie::Layers->TIEHANDLE(@options);
 
      $data = $layers->fin($filename, @options);
 
@@ -341,101 +347,6 @@ DEMONSTRATION
              $self->{current_event} = $! unless($success);
              $success;
          }
-
-         my $test_data1 = 
-     "layer 0: put_record
-     layer 1: encode_record
-     layer 2: encode_field
-     field1: value1
-     field2: value2
-     option binary: 0
-     option warn: 1
-     \~-\~
-     layer 0: put_record
-     layer 1: encode_record
-     layer 2: encode_field
-     field3: value3
-     option binary: 0
-     option warn: 1
-     \~-\~
-     layer 0: put_record
-     layer 1: encode_record
-     layer 2: encode_field
-     field4: value4
-     field5: value5
-     field6: value6
-     option binary: 0
-     option warn: 1
-     \~-\~
-     ";
-
-     my @test_data2 = (
-          'layer 2',
-          'decode_field',
-          'layer 1',
-          'decode_record',
-          'layer 0',
-          'get_record',
-          'layer 0',
-          'put_record',
-          'layer 1',
-          'encode_record',
-          'layer 2',
-          'encode_field',
-          'field1',
-          'value1',
-          'field2',
-          'value2',
-          'option binary',
-          0,
-          'option warn',
-          1);
-
-     my @test_data3 = (
-          'layer 2',
-          'decode_field',
-          'layer 1',
-          'decode_record',
-          'layer 0',
-          'get_record',
-          'layer 0',
-          'put_record',
-          'layer 1',
-          'encode_record',
-          'layer 2',
-          'encode_field',
-          'field3',
-          'value3',  
-          'option binary',
-          0,
-          'option warn',
-          1  
-     );
-
-     my @test_data4 = (
-          'layer 2',
-          'decode_field',
-          'layer 1',
-          'decode_record',
-          'layer 0',
-          'get_record',
-          'layer 0',
-          'put_record',
-          'layer 1',
-          'encode_record',
-          'layer 2',
-          'encode_field',
-          'field4',
-          'value4',
-          'field5',
-          'value5', 
-          'field6',
-          'value6',  
-          'option binary',
-          0,
-          'option warn',
-          1);
-
          my (@records, $record);   # force context
 
      ##################
@@ -814,8 +725,8 @@ QUALITY ASSURANCE
     "t::Tie::Layers" Software Test Description (STD) program module POD,
     from the "t::Tie::Layers" program module contents. The "tmake.pl" cover
     script automatically ran the "Layers.d" demo script and inserted the
-    results into the 'DEMONSTRATION' section above. The "t::File::Layers"
-    program module is in the distribution file File-Layers-$VERSION.tar.gz.
+    results into the 'DEMONSTRATION' section above. The "t::Tie::Layers"
+    program module is in the distribution file Tie-Layers-$VERSION.tar.gz.
 
 NOTES
   Author
@@ -874,11 +785,11 @@ Title Page
 
      Tie::Layers - read and write files pipelined through a stack of subroutine layers
 
-     Revision: -
+     Revision: A
 
-     Version: 0.01
+     Version: 0.02
 
-     Date: 2004/05/07
+     Date: 2004/05/09
 
      Prepared for: General Public 
 
@@ -917,7 +828,7 @@ Title Page
 
   1.3 Document overview.
 
-    This document releases Tie::Layers version 0.01 providing a description
+    This document releases Tie::Layers version 0.02 providing a description
     of the inventory, installation instructions and other information
     necessary to utilize and track this release.
 
@@ -929,7 +840,7 @@ Title Page
 
     This document releases the file
 
-     Tie-Layers-0.01.tar.gz
+     Tie-Layers-0.02.tar.gz
 
     found at the following repository(s):
 
@@ -979,26 +890,32 @@ Title Page
 
      file                                                         version date       comment
      ------------------------------------------------------------ ------- ---------- ------------------------
-     lib/Docs/Site_SVD/Tie_Layers.pm                              0.01    2004/05/07 new
-     MANIFEST                                                     0.01    2004/05/07 generated new
-     Makefile.PL                                                  0.01    2004/05/07 generated new
-     README                                                       0.01    2004/05/07 generated new
-     lib/Tie/Layers.pm                                            0.01    2004/05/07 new
-     t/Tie/Layers.pm                                              0.01    2004/05/07 new
-     t/Tie/Layers.t                                               0.01    2004/05/07 new
-     t/Tie/Layers.d                                               0.01    2004/05/07 new
-     t/Tie/File/Package.pm                                        1.16    2004/05/07 new
-     t/Tie/Test/Tech.pm                                           1.22    2004/05/07 new
-     t/Tie/Data/Secs2.pm                                          1.19    2004/05/07 new
-     t/Tie/Data/SecsPack.pm                                       0.04    2004/05/07 new
-     t/Tie/Data/Startup.pm                                        0.04    2004/05/07 new
+     lib/Docs/Site_SVD/Tie_Layers.pm                              0.02    2004/05/09 revised 0.01
+     MANIFEST                                                     0.02    2004/05/09 generated, replaces 0.01
+     Makefile.PL                                                  0.02    2004/05/09 generated, replaces 0.01
+     README                                                       0.02    2004/05/09 generated, replaces 0.01
+     lib/Tie/Layers.pm                                            0.02    2004/05/09 revised 0.01
+     t/Tie/Layers.pm                                              0.02    2004/05/09 revised 0.01
+     t/Tie/Layers.t                                               0.02    2004/05/09 revised 0.01
+     t/Tie/Layers.d                                               0.02    2004/05/09 revised 0.01
+     t/Tie/File/Package.pm                                        1.16    2004/05/09 unchanged
+     t/Tie/Test/Tech.pm                                           1.22    2004/05/09 unchanged
+     t/Tie/Data/Secs2.pm                                          1.2     2004/05/09 revised 1.19
+     t/Tie/Data/SecsPack.pm                                       0.05    2004/05/09 revised 0.04
+     t/Tie/Data/Startup.pm                                        0.04    2004/05/09 unchanged
 
   3.3 Changes
 
     Changes are as follows
 
-    Tie::Gzip-0.01
+    Tie::Layers-0.01
         Originated
+
+    Tie::Layers-0.02
+        Sometimes get a "DESTROY" when coming out of "TIEHANDLE". Do not
+        want "TIEHANDLE" going around closing stuff, especially for an
+        "OPEN" with a file handle like "DATA". If something needs closing,
+        call CLOSE directly.
 
   3.4 Adaptation data.
 
@@ -1032,12 +949,12 @@ Title Page
           http://www.softwarediamonds/packages/
           http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-        Right click on 'Tie-Layers-0.01.tar.gz' and download to a temporary
+        Right click on 'Tie-Layers-0.02.tar.gz' and download to a temporary
         installation directory. Enter the following where $make is 'nmake'
         for microsoft windows; otherwise 'make'.
 
-         gunzip Tie-Layers-0.01.tar.gz
-         tar -xf Tie-Layers-0.01.tar
+         gunzip Tie-Layers-0.02.tar.gz
+         tar -xf Tie-Layers-0.02.tar
          perl Makefile.PL
          $make test
          $make install
@@ -1081,6 +998,3 @@ Title Page
 
 2.0 SEE ALSO
     Docs::US_DOD::SVD
-          http://www.softwarediamonds/packages/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-          http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-

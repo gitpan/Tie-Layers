@@ -15,8 +15,8 @@ use Math::BigFloat 1.40;
 use Data::Startup;
 
 use vars qw( $VERSION $DATE $FILE);
-$VERSION = '0.04';
-$DATE = '2004/05/07';
+$VERSION = '0.05';
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 use vars qw(@ISA @EXPORT_OK);
@@ -1370,7 +1370,7 @@ get out the door.
 
 The L<Data::SecsPack|Data::SecsPack> suroutines 
 packs and unpacks numbers in accordance with 
-L<SEMI|http://http://www.semi.org> E5-94, 
+L<SEMI|http:E<sol>E<sol>www.semi.org> E5-94, 
 Semiconductor Equipment Communications Standard 2 (SECS-II),
 avaiable from
  
@@ -1379,8 +1379,7 @@ avaiable from
  Mountain View, CA 94043-4080 USA
  (415) 964-5111
  Easylink: 62819945
- http://www.semiconductor-intl.org
- http://www.reed-electronics.com/semiconductor/
+ http://www.semi.org
  
 The format of SEMI E5-94 numbers are established
 by below Table 1. 
@@ -2579,6 +2578,8 @@ ANY WAY OUT OF THE POSSIBILITY OF SUCH DAMAGE.
 =head1 SEE_ALSO:
 
 =over 4
+
+=item L<SEMI|http:E<sol>E<sol>www.semi.org>
 
 =item L<Math::BigInt|Math::BigInt>
 

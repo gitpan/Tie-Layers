@@ -7,8 +7,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.01';   # automatically generated file
-$DATE = '2004/05/07';
+$VERSION = '0.02';   # automatically generated file
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 
@@ -293,7 +293,9 @@ use warnings;
         $self->{current_event} = $! unless($success);
         $success;
     }
+    my (@records, $record);   # force context;
 
+   # Perl code from QC:
     my $test_data1 = 
 "layer 0: put_record
 layer 1: encode_record
@@ -388,9 +390,6 @@ my @test_data4 = (
      0,
      'option warn',
      1);
-
- 
-    my (@records, $record);   # force context;
 
 skip_tests( 1 ) unless ok(
       $loaded = $fp->is_package_loaded($uut), # actual results

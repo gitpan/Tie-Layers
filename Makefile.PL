@@ -23,7 +23,7 @@ my $tests = join ' ',unix2os('t/Tie/Layers.t');
 WriteMakefile(
     NAME => 'Tie::Layers',
     DISTNAME => 'Tie-Layers',
-    VERSION  => '0.01',
+    VERSION  => '0.02',
     dist     => {COMPRESS => 'gzip',
                 'gz' => 'gz'},
     test     => {TESTS => $tests},

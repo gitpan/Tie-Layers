@@ -11,8 +11,8 @@ use warnings::register;
 use attributes;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.19';
-$DATE = '2004/05/07';
+$VERSION = '1.2';
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 use Data::SecsPack 0.04;
@@ -1313,7 +1313,7 @@ nested list between machines is SEMI E5-94.
 
 The L<Data::Secs2|Data::Secs2> program module
 facilitates the secsification of the nested data in accordance with 
-L<SEMI|http://www.semiconductor-intl.org> E5-94,
+L<SEMI|http:E<sol>E<sol>www.semi.org>  E5-94,
 Semiconductor Equipment Communications Standard 2 (SECS-II),
 pronounced 'sex two' with gussto and a perverted smile. 
 The SEMI E4 SECS-I standard addresses transmitting SECSII messages from one machine to
@@ -1366,7 +1366,7 @@ Tony Blair not only SECS-II but SECS-I and High-Speed SECS.
 
 The nested data linear format used by the
 L<Data::Secs2|Data::Secs2> suroutines is in accordance with 
-L<SEMI|http://http://www.semiconductor-intl.org> E5-94,
+L<SEMI|http:E<sol>E<sol>www.semi.org> E5-94,
 Semiconductor Equipment Communications Standard 2 (SECS-II),
 pronounced 'sex two' with gussto and a perverted smile. 
 This industry standard is copyrighted and cannot be
@@ -1382,8 +1382,7 @@ from
  Mountain View, CA 94043-4080 USA
  (415) 964-5111
  Easylink: 62819945
- http://www.semiconductor-intl.org
- http://www.reed-electronics.com/semiconductor/
+ http://www.semi.org
 
 Other important SEMI standards address message transfer protocol of SECSII messages.
 They are the SEMI E4 SECS-I for transmitting SECSII messages from one machine to
@@ -3065,6 +3064,8 @@ ANY WAY OUT OF THE POSSIBILITY OF SUCH DAMAGE.
 =over 4
 
 =item L<Data::SecsPack|Data::SecsPack> 
+
+=item =item L<SEMI|http:E<sol>E<sol>www.semi.org>
 
 =item L<Docs::Site_SVD::Data_Secs2|Docs::Site_SVD::Data_Secs2>
 

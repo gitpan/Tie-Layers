@@ -7,8 +7,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE);
-$VERSION = '0.01';   # automatically generated file
-$DATE = '2004/05/07';
+$VERSION = '0.02';   # automatically generated file
+$DATE = '2004/05/09';
 
 
 ##### Demonstration Script ####
@@ -253,103 +253,6 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
 \ \ \ \ \ \ \ \ \$self\-\>\{current_event\}\ \=\ \$\!\ unless\(\$success\)\;\
 \ \ \ \ \ \ \ \ \$success\;\
 \ \ \ \ \}\
-\
-\ \ \ \ my\ \$test_data1\ \=\ \
-\"layer\ 0\:\ put_record\
-layer\ 1\:\ encode_record\
-layer\ 2\:\ encode_field\
-field1\:\ value1\
-field2\:\ value2\
-option\ binary\:\ 0\
-option\ warn\:\ 1\
-\\\~\-\\\~\
-layer\ 0\:\ put_record\
-layer\ 1\:\ encode_record\
-layer\ 2\:\ encode_field\
-field3\:\ value3\
-option\ binary\:\ 0\
-option\ warn\:\ 1\
-\\\~\-\\\~\
-layer\ 0\:\ put_record\
-layer\ 1\:\ encode_record\
-layer\ 2\:\ encode_field\
-field4\:\ value4\
-field5\:\ value5\
-field6\:\ value6\
-option\ binary\:\ 0\
-option\ warn\:\ 1\
-\\\~\-\\\~\
-\"\;\
-\
-my\ \@test_data2\ \=\ \(\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'decode_field\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'decode_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'get_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'put_record\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'encode_record\'\,\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'encode_field\'\,\
-\ \ \ \ \ \'field1\'\,\
-\ \ \ \ \ \'value1\'\,\
-\ \ \ \ \ \'field2\'\,\
-\ \ \ \ \ \'value2\'\,\
-\ \ \ \ \ \'option\ binary\'\,\
-\ \ \ \ \ 0\,\
-\ \ \ \ \ \'option\ warn\'\,\
-\ \ \ \ \ 1\)\;\
-\
-\
-my\ \@test_data3\ \=\ \(\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'decode_field\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'decode_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'get_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'put_record\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'encode_record\'\,\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'encode_field\'\,\
-\ \ \ \ \ \'field3\'\,\
-\ \ \ \ \ \'value3\'\,\ \ \
-\ \ \ \ \ \'option\ binary\'\,\
-\ \ \ \ \ 0\,\
-\ \ \ \ \ \'option\ warn\'\,\
-\ \ \ \ \ 1\ \ \
-\)\;\
-\
-my\ \@test_data4\ \=\ \(\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'decode_field\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'decode_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'get_record\'\,\
-\ \ \ \ \ \'layer\ 0\'\,\
-\ \ \ \ \ \'put_record\'\,\
-\ \ \ \ \ \'layer\ 1\'\,\
-\ \ \ \ \ \'encode_record\'\,\
-\ \ \ \ \ \'layer\ 2\'\,\
-\ \ \ \ \ \'encode_field\'\,\
-\ \ \ \ \ \'field4\'\,\
-\ \ \ \ \ \'value4\'\,\
-\ \ \ \ \ \'field5\'\,\
-\ \ \ \ \ \'value5\'\,\ \
-\ \ \ \ \ \'field6\'\,\
-\ \ \ \ \ \'value6\'\,\ \ \
-\ \ \ \ \ \'option\ binary\'\,\
-\ \ \ \ \ 0\,\
-\ \ \ \ \ \'option\ warn\'\,\
-\ \ \ \ \ 1\)\;\
-\
-\ \
 \ \ \ \ my\ \(\@records\,\ \$record\)\;\ \ \ \#\ force\ context"); # typed in command           
           use File::Package;
 
@@ -511,8 +414,9 @@ my\ \@test_data4\ \=\ \(\
         $self->{current_event} = $! unless($success);
         $success;
     }
+    my (@records, $record);   # force context; # execution
 
-    my $test_data1 = 
+          my $test_data1 = 
 "layer 0: put_record
 layer 1: encode_record
 layer 2: encode_field
@@ -605,10 +509,7 @@ my @test_data4 = (
      'option binary',
      0,
      'option warn',
-     1);
-
- 
-    my (@records, $record);   # force context; # execution
+     1);; # execution
 
 print << "EOF";
 

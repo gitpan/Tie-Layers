@@ -10,25 +10,25 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.01';
-$DATE = '2004/05/07';
+$VERSION = '0.02';
+$DATE = '2004/05/09';
 $FILE = __FILE__;
 
 use vars qw(%INVENTORY);
 %INVENTORY = (
-    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.01 2004/05/07), 'new'],
-    'MANIFEST' => [qw(0.01 2004/05/07), 'generated new'],
-    'Makefile.PL' => [qw(0.01 2004/05/07), 'generated new'],
-    'README' => [qw(0.01 2004/05/07), 'generated new'],
-    'lib/Tie/Layers.pm' => [qw(0.01 2004/05/07), 'new'],
-    't/Tie/Layers.pm' => [qw(0.01 2004/05/07), 'new'],
-    't/Tie/Layers.t' => [qw(0.01 2004/05/07), 'new'],
-    't/Tie/Layers.d' => [qw(0.01 2004/05/07), 'new'],
-    't/Tie/File/Package.pm' => [qw(1.16 2004/05/07), 'new'],
-    't/Tie/Test/Tech.pm' => [qw(1.22 2004/05/07), 'new'],
-    't/Tie/Data/Secs2.pm' => [qw(1.19 2004/05/07), 'new'],
-    't/Tie/Data/SecsPack.pm' => [qw(0.04 2004/05/07), 'new'],
-    't/Tie/Data/Startup.pm' => [qw(0.04 2004/05/07), 'new'],
+    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
+    'MANIFEST' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
+    'Makefile.PL' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
+    'README' => [qw(0.02 2004/05/09), 'generated, replaces 0.01'],
+    'lib/Tie/Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
+    't/Tie/Layers.pm' => [qw(0.02 2004/05/09), 'revised 0.01'],
+    't/Tie/Layers.t' => [qw(0.02 2004/05/09), 'revised 0.01'],
+    't/Tie/Layers.d' => [qw(0.02 2004/05/09), 'revised 0.01'],
+    't/Tie/File/Package.pm' => [qw(1.16 2004/05/09), 'unchanged'],
+    't/Tie/Test/Tech.pm' => [qw(1.22 2004/05/09), 'unchanged'],
+    't/Tie/Data/Secs2.pm' => [qw(1.2 2004/05/09), 'revised 1.19'],
+    't/Tie/Data/SecsPack.pm' => [qw(0.05 2004/05/09), 'revised 0.04'],
+    't/Tie/Data/Startup.pm' => [qw(0.04 2004/05/09), 'unchanged'],
 
 );
 
@@ -55,11 +55,11 @@ use vars qw(%INVENTORY);
 
  Tie::Layers - read and write files pipelined through a stack of subroutine layers
 
- Revision: -
+ Revision: A
 
- Version: 0.01
+ Version: 0.02
 
- Date: 2004/05/07
+ Date: 2004/05/09
 
  Prepared for: General Public 
 
@@ -102,7 +102,7 @@ in the underlying file and not the character position in the file.
 
 =head2 1.3 Document overview.
 
-This document releases Tie::Layers version 0.01
+This document releases Tie::Layers version 0.02
 providing a description of the inventory, installation
 instructions and other information necessary to
 utilize and track this release.
@@ -117,7 +117,7 @@ system file specification.
 
 This document releases the file 
 
- Tie-Layers-0.01.tar.gz
+ Tie-Layers-0.02.tar.gz
 
 found at the following repository(s):
 
@@ -189,19 +189,19 @@ consists of the following files:
 
  file                                                         version date       comment
  ------------------------------------------------------------ ------- ---------- ------------------------
- lib/Docs/Site_SVD/Tie_Layers.pm                              0.01    2004/05/07 new
- MANIFEST                                                     0.01    2004/05/07 generated new
- Makefile.PL                                                  0.01    2004/05/07 generated new
- README                                                       0.01    2004/05/07 generated new
- lib/Tie/Layers.pm                                            0.01    2004/05/07 new
- t/Tie/Layers.pm                                              0.01    2004/05/07 new
- t/Tie/Layers.t                                               0.01    2004/05/07 new
- t/Tie/Layers.d                                               0.01    2004/05/07 new
- t/Tie/File/Package.pm                                        1.16    2004/05/07 new
- t/Tie/Test/Tech.pm                                           1.22    2004/05/07 new
- t/Tie/Data/Secs2.pm                                          1.19    2004/05/07 new
- t/Tie/Data/SecsPack.pm                                       0.04    2004/05/07 new
- t/Tie/Data/Startup.pm                                        0.04    2004/05/07 new
+ lib/Docs/Site_SVD/Tie_Layers.pm                              0.02    2004/05/09 revised 0.01
+ MANIFEST                                                     0.02    2004/05/09 generated, replaces 0.01
+ Makefile.PL                                                  0.02    2004/05/09 generated, replaces 0.01
+ README                                                       0.02    2004/05/09 generated, replaces 0.01
+ lib/Tie/Layers.pm                                            0.02    2004/05/09 revised 0.01
+ t/Tie/Layers.pm                                              0.02    2004/05/09 revised 0.01
+ t/Tie/Layers.t                                               0.02    2004/05/09 revised 0.01
+ t/Tie/Layers.d                                               0.02    2004/05/09 revised 0.01
+ t/Tie/File/Package.pm                                        1.16    2004/05/09 unchanged
+ t/Tie/Test/Tech.pm                                           1.22    2004/05/09 unchanged
+ t/Tie/Data/Secs2.pm                                          1.2     2004/05/09 revised 1.19
+ t/Tie/Data/SecsPack.pm                                       0.05    2004/05/09 revised 0.04
+ t/Tie/Data/Startup.pm                                        0.04    2004/05/09 unchanged
 
 
 =head2 3.3 Changes
@@ -210,9 +210,16 @@ Changes are as follows
 
 =over 4
 
-=item Tie::Gzip-0.01
+=item Tie::Layers-0.01
 
 Originated
+
+=item Tie::Layers-0.02
+
+Sometimes get a C<DESTROY> when coming out of C<TIEHANDLE>. Do not
+want C<TIEHANDLE> going around closing stuff, especially for an
+C<OPEN> with a file handle like C<DATA>. 
+If something needs closing, call CLOSE directly.  
 
 =back
 
@@ -252,13 +259,13 @@ Enter one of the following repositories in a web browser:
   http://www.softwarediamonds/packages/
   http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-Right click on 'Tie-Layers-0.01.tar.gz' and download to a temporary
+Right click on 'Tie-Layers-0.02.tar.gz' and download to a temporary
 installation directory.
 Enter the following where $make is 'nmake' for microsoft
 windows; otherwise 'make'.
 
- gunzip Tie-Layers-0.01.tar.gz
- tar -xf Tie-Layers-0.01.tar
+ gunzip Tie-Layers-0.02.tar.gz
+ tar -xf Tie-Layers-0.02.tar
  perl Makefile.PL
  $make test
  $make install
@@ -324,36 +331,22 @@ extension for a Perl test script file
 
 =item Docs::US_DOD::SVD
 
-  http://www.softwarediamonds/packages/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-  http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-
 =back
 
 =for html
-<hr>
-<p><br>
-<!-- BLK ID="NOTICE" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="OPT-IN" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="LOG_CGI" -->
-<!-- /BLK -->
-<p><br>
+
 
 =cut
 
 1;
 
 __DATA__
-
 DISTNAME: Tie-Layers^
-VERSION : 0.01^
-FREEZE: 0^
-PREVIOUS_DISTNAME:  ^
-PREVIOUS_RELEASE:  ^
-REVISION: - ^
+VERSION : 0.02^
+FREEZE: 1^
+PREVIOUS_DISTNAME: ^
+PREVIOUS_RELEASE: 0.01^
+REVISION: A ^
 
 AUTHOR  : SoftwareDiamonds.com E<lt>support@SoftwareDiamonds.comE<gt>^
 ABSTRACT: read and write files pipelined through a stack of subroutine layers^
@@ -402,9 +395,16 @@ Changes are as follows
 
 \=over 4
 
-\=item Tie::Gzip-0.01
+\=item Tie::Layers-0.01
 
 Originated
+
+\=item Tie::Layers-0.02
+
+Sometimes get a C<DESTROY> when coming out of C<TIEHANDLE>. Do not
+want C<TIEHANDLE> going around closing stuff, especially for an
+C<OPEN> with a file handle like C<DATA>. 
+If something needs closing, call CLOSE directly.  
 
 \=back
 
@@ -539,25 +539,13 @@ SEE_ALSO:
 
 \=item Docs::US_DOD::SVD
 
-  http://www.softwarediamonds/packages/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-  http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/  Docs-US_DOD-STD2167A-X.XX.tar.gz
-
 \=back
 ^
 
 HTML:
-<hr>
-<p><br>
-<!-- BLK ID="NOTICE" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="OPT-IN" -->
-<!-- /BLK -->
-<p><br>
-<!-- BLK ID="LOG_CGI" -->
-<!-- /BLK -->
-<p><br>
 ^
 ~-~
+
+
 
 
