@@ -7,8 +7,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.02';   # automatically generated file
-$DATE = '2004/05/09';
+$VERSION = '0.03';   # automatically generated file
+$DATE = '2004/05/28';
 $FILE = __FILE__;
 
 
@@ -78,8 +78,9 @@ BEGIN {
    # and the todo tests
    #
    require Test::Tech;
-   Test::Tech->import( qw(finish is_skip ok plan skip skip_tests tech_config) );
-   plan(tests => 18);
+   Test::Tech->import( qw(finish is_skip ok ok_sub plan skip 
+                          skip_sub skip_tests tech_config) );
+   plan(tests => 23);
 
 }
 
@@ -94,42 +95,6 @@ END {
 }
 
 
-=head1 comment_out
-
-###
-# Have been problems with debugger with trapping CARP
-#
-
-####
-# Poor man's eval where the test script traps off the Carp::croak 
-# Carp::confess functions.
-#
-# The Perl authorities have Core::die locked down tight so
-# it is next to impossible to trap off of Core::die. Lucky 
-# must everyone uses Carp to die instead of just dieing.
-#
-use Carp;
-use vars qw($restore_croak $croak_die_error $restore_confess $confess_die_error);
-$restore_croak = \&Carp::croak;
-$croak_die_error = '';
-$restore_confess = \&Carp::confess;
-$confess_die_error = '';
-no warnings;
-*Carp::croak = sub {
-   $croak_die_error = '# Test Script Croak. ' . (join '', @_);
-   $croak_die_error .= Carp::longmess (join '', @_);
-   $croak_die_error =~ s/\n/\n#/g;
-       goto CARP_DIE; # once croak can not continue
-};
-*Carp::confess = sub {
-   $confess_die_error = '# Test Script Confess. ' . (join '', @_);
-   $confess_die_error .= Carp::longmess (join '', @_);
-   $confess_die_error =~ s/\n/\n#/g;
-       goto CARP_DIE; # once confess can not continue
-
-};
-use warnings;
-=cut
 
 
    # Perl code from C:
@@ -180,7 +145,7 @@ use warnings;
         #####
         # Get a snap-short of the options
         #
-        my $options = $self->{options};
+        my $options = $self->{'Tie::Layers'}->{options};
         foreach my $key (sort keys %$options ) {
             next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
             $encoded_fields .= "option $key: $options->{$key}\n";
@@ -228,7 +193,7 @@ use warnings;
         # Unless in strict mode, change CR and LF
         # to end of line string for current operating system
         #
-        unless( $self->{options}->{binary} ) {
+        unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
             $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
             $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
         }
@@ -267,7 +232,7 @@ use warnings;
        local($/);
        $/ = "\n\~-\~\n";
  
-       my ($fh) = $self->{FH};
+       my ($fh) = $self->{'Tie::Layers'}->{FH};
        $! = 0;
        my $record = <$fh>;
        unless($record) {
@@ -286,7 +251,7 @@ use warnings;
     sub print_record
     {
         my ($self, $record) = @_;
-        my ($fh) = $self->{FH};
+        my ($fh) = $self->{'Tie::Layers'}->{FH};
         $record .= "\n" unless substr($record, -1, 1) eq "\n";
         $! = 0;
         my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -294,6 +259,8 @@ use warnings;
         $success;
     }
     my (@records, $record);   # force context;
+
+
 
    # Perl code from QC:
     my $test_data1 = 
@@ -391,28 +358,43 @@ my @test_data4 = (
      'option warn',
      1);
 
-skip_tests( 1 ) unless ok(
-      $loaded = $fp->is_package_loaded($uut), # actual results
-       '', # expected results
-      "",
-      "UUT not loaded"); 
+    my $test_data5 = 
+"layer 0: put_record
+layer 1: encode_record
+layer 2: encode_field
+field1: value1
+field2: value2
+option binary: 0
+option warn: 1";
+
+
+
+skip_tests( 1 ) unless
+  ok(  $loaded = $fp->is_package_loaded($uut), # actual results
+      '', # expected results
+     "",
+     "UUT not loaded");
 
 #  ok:  1
 
    # Perl code from C:
 my $errors = $fp->load_package($uut);
 
-skip_tests( 1 ) unless ok(
-      $errors, # actual results
-      '', # expected results
-      "",
-      "Load UUT"); 
+
+
+skip_tests( 1 ) unless
+  ok(  $errors, # actual results
+     '', # expected results
+     "",
+     "Load UUT");
 
 #  ok:  2
 
    # Perl code from C:
     my $version = $Tie::Layers::VERSION;
     $version = '' unless $version;
+
+
 
 ok(  $fp->is_package_loaded($uut), # actual results
      1, # expected results
@@ -436,6 +418,8 @@ ok(  $fp->is_package_loaded($uut), # actual results
 
     my $layers = tied *LAYERS;
     unlink 'layers1.txt';
+
+
 
 ok(  open( \*LAYERS,'>layers1.txt'), # actual results
      1, # expected results
@@ -495,6 +479,8 @@ ok(  close(LAYERS), # actual results
         ];
     my $slurp = tied *FIN;
 
+
+
 ok(  $slurp->fin('layers1.txt'), # actual results
      $test_data1, # expected results
      "",
@@ -533,6 +519,8 @@ ok(  $record = <LAYERS>, # actual results
    # Perl code from C:
 seek(LAYERS,0,0);
 
+
+
 ok(  $record = <LAYERS>, # actual results
      [@test_data2], # expected results
      "",
@@ -543,6 +531,8 @@ ok(  $record = <LAYERS>, # actual results
    # Perl code from C:
 seek(LAYERS,2,0);
 
+
+
 ok(  $record = <LAYERS>, # actual results
      [@test_data4], # expected results
      "",
@@ -552,6 +542,8 @@ ok(  $record = <LAYERS>, # actual results
 
    # Perl code from C:
 seek(LAYERS,-1,1);
+
+
 
 ok(  $record = <LAYERS>, # actual results
      [@test_data3], # expected results
@@ -570,6 +562,8 @@ ok(  close(LAYERS), # actual results
    # Perl code from C:
 $slurp->fout('layers1.txt', $test_data1);
 
+
+
 ok(  $slurp->fin('layers1.txt'), # actual results
      $test_data1, # expected results
      "",
@@ -577,24 +571,46 @@ ok(  $slurp->fin('layers1.txt'), # actual results
 
 #  ok:  18
 
+ok(  [$uut->config('binary')], # actual results
+     ['binary', 0], # expected results
+     "",
+     "\$uut->config('binary')");
 
-=head1 comment out
+#  ok:  19
 
-# does not work with debugger
-CARP_DIE:
-    if ($croak_die_error || $confess_die_error) {
-        print $Test::TESTOUT = "not ok $Test::ntest\n";
-        $Test::ntest++;
-        print $Test::TESTERR $croak_die_error . $confess_die_error;
-        $croak_die_error = '';
-        $confess_die_error = '';
-        skip_tests(1, 'Test invalid because of Carp die.');
-    }
-    no warnings;
-    *Carp::croak = $restore_croak;    
-    *Carp::confess = $restore_confess;
-    use warnings;
-=cut
+ok(  $slurp->{'Tie::Layers'}->{options}->{binary}, # actual results
+     1, # expected results
+     "",
+     "\$slurp->{'Tie::Layers'}->{options}->{binary}");
+
+#  ok:  20
+
+ok(  [$slurp->config('binary', 0)], # actual results
+     ['binary', 1], # expected results
+     "",
+     "\$slurp->config('binary', 0)");
+
+#  ok:  21
+
+ok(  $slurp->{'Tie::Layers'}->{options}->{binary}, # actual results
+     0, # expected results
+     "",
+     "\$slurp->{'Tie::Layers'}->{options}->{binary}");
+
+#  ok:  22
+
+ok(  [$slurp->config('binary')], # actual results
+     ['binary', 0], # expected results
+     "",
+     "\$slurp->config('binary')");
+
+#  ok:  23
+
+   # Perl code from C:
+unlink 'layers1.txt';
+
+
+
 
     finish();
 
@@ -647,6 +663,20 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+\=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
 
 \=back
 

@@ -10,15 +10,15 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.02';
-$DATE = '2004/05/09';
+$VERSION = '0.03';
+$DATE = '2004/05/28';
 $FILE = __FILE__;
 
 ########
 # The Test::STDmaker module uses the data after the __DATA__ 
 # token to automatically generate the this file.
 #
-# Don't edit anything before __DATA_. Edit instead
+# Do not edit anything before __DATA_. Edit instead
 # the data after the __DATA__ token.
 #
 # ANY CHANGES MADE BEFORE the  __DATA__ token WILL BE LOST
@@ -27,6 +27,10 @@ $FILE = __FILE__;
 #
 #
 
+
+=head1 NAME
+
+ - Software Test Description for Tie::Layers
 
 =head1 TITLE PAGE
 
@@ -40,7 +44,7 @@ $FILE = __FILE__;
 
  Version: 
 
- Date: 2004/05/09
+ Date: 2004/05/28
 
  Prepared for: General Public 
 
@@ -48,39 +52,44 @@ $FILE = __FILE__;
 
  Classification: None
 
+#######
+#  
+#  1. SCOPE
+#
+#
 =head1 SCOPE
 
 This detail STD and the 
 L<General Perl Program Module (PM) STD|Test::STD::PerlSTD>
 establishes the tests to verify the
 requirements of Perl Program Module (PM) L<Tie::Layers|Tie::Layers>
-
 The format of this STD is a tailored L<2167A STD DID|Docs::US_DOD::STD>.
-in accordance with 
-L<Detail STD Format|Test::STDmaker/Detail STD Format>.
+
+#######
+#  
+#  3. TEST PREPARATIONS
+#
+#
+=head1 TEST PREPARATIONS
+
+Test preparations are establishes by the L<General STD|Test::STD::PerlSTD>.
+
 
 #######
 #  
 #  4. TEST DESCRIPTIONS
 #
-#  4.1 Test 001
 #
-#  ..
-#
-#  4.x Test x
-#
-#
-
 =head1 TEST DESCRIPTIONS
 
 The test descriptions uses a legend to
 identify different aspects of a test description
 in accordance with
-L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description Fields>.
+L<STD PM Form Database Test Description Fields|Test::STDmaker/STD PM Form Database Test Description Fields>.
 
 =head2 Test Plan
 
- T: 18^
+ T: 23^
 
 =head2 ok: 1
 
@@ -126,7 +135,7 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
          #####
          # Get a snap-short of the options
          #
-         my $options = $self->{options};
+         my $options = $self->{'Tie::Layers'}->{options};
          foreach my $key (sort keys %$options ) {
              next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
              $encoded_fields .= "option $key: $options->{$key}\n";
@@ -171,7 +180,7 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
          # Unless in strict mode, change CR and LF
          # to end of line string for current operating system
          #
-         unless( $self->{options}->{binary} ) {
+         unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
              $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
              $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
          }
@@ -205,7 +214,7 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
         local($/);
         $/ = "\n\~-\~\n";
   
-        my ($fh) = $self->{FH};
+        my ($fh) = $self->{'Tie::Layers'}->{FH};
         $! = 0;
         my $record = <$fh>;
         unless($record) {
@@ -223,7 +232,7 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
      sub print_record
      {
          my ($self, $record) = @_;
-         my ($fh) = $self->{FH};
+         my ($fh) = $self->{'Tie::Layers'}->{FH};
          $record .= "\n" unless substr($record, -1, 1) eq "\n";
          $! = 0;
          my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -325,6 +334,14 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
       0,
       'option warn',
       1);
+     my $test_data5 = 
+ "layer 0: put_record
+ layer 1: encode_record
+ layer 2: encode_field
+ field1: value1
+ field2: value2
+ option binary: 0
+ option warn: 1";
  ^
  VO: ^
   N: UUT not loaded^
@@ -501,6 +518,41 @@ L<STD FormDB Test Description Fields|Test::STDmaker/STD FormDB Test Description 
   E: $test_data1^
  ok: 18^
 
+=head2 ok: 19
+
+  N: $uut->config('binary')^
+  A: [$uut->config('binary')]^
+  E: ['binary', 0]^
+ ok: 19^
+
+=head2 ok: 20
+
+  N: $slurp->{'Tie::Layers'}->{options}->{binary}^
+  A: $slurp->{'Tie::Layers'}->{options}->{binary}^
+  E: 1^
+ ok: 20^
+
+=head2 ok: 21
+
+  N: $slurp->config('binary', 0)^
+  A: [$slurp->config('binary', 0)]^
+  E: ['binary', 1]^
+ ok: 21^
+
+=head2 ok: 22
+
+  N: $slurp->{'Tie::Layers'}->{options}->{binary}^
+  A: $slurp->{'Tie::Layers'}->{options}->{binary}^
+  E: 0^
+ ok: 22^
+
+=head2 ok: 23
+
+  N: $slurp->config('binary')^
+  A: [$slurp->config('binary')]^
+  E: ['binary', 0]^
+ ok: 23^
+
 
 
 #######
@@ -553,6 +605,20 @@ disclaimer in the documentation and/or
 other materials provided with the
 distribution.
 
+=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
+
 =back
 
 SOFTWARE DIAMONDS, http://www.SoftwareDiamonds.com,
@@ -592,21 +658,22 @@ L<Tie::Layers>
 
 __DATA__
 
+Name: ^
 File_Spec: Unix^
 UUT: Tie::Layers^
 Revision: -^
+Version: ^
 End_User: General Public^
 Author: http://www.SoftwareDiamonds.com support@SoftwareDiamonds.com^
-Detail_Template: ^
 STD2167_Template: ^
-Version: ^
+Detail_Template: ^
 Classification: None^
 Temp: temp.pl^
 Demo: Layers.d^
 Verify: Layers.t^
 
 
- T: 18^
+ T: 23^
 
 
  C:
@@ -657,7 +724,7 @@ Verify: Layers.t^
         #####
         # Get a snap-short of the options
         #
-        my $options = $self->{options};
+        my $options = $self->{'Tie::Layers'}->{options};
         foreach my $key (sort keys %$options ) {
             next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
             $encoded_fields .= "option $key: $options->{$key}\n";
@@ -705,7 +772,7 @@ Verify: Layers.t^
         # Unless in strict mode, change CR and LF
         # to end of line string for current operating system
         #
-        unless( $self->{options}->{binary} ) {
+        unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
             $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
             $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
         }
@@ -744,7 +811,7 @@ Verify: Layers.t^
        local($/);
        $/ = "\n\~-\~\n";
  
-       my ($fh) = $self->{FH};
+       my ($fh) = $self->{'Tie::Layers'}->{FH};
        $! = 0;
        my $record = <$fh>;
        unless($record) {
@@ -763,7 +830,7 @@ Verify: Layers.t^
     sub print_record
     {
         my ($self, $record) = @_;
-        my ($fh) = $self->{FH};
+        my ($fh) = $self->{'Tie::Layers'}->{FH};
         $record .= "\n" unless substr($record, -1, 1) eq "\n";
         $! = 0;
         my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -869,6 +936,15 @@ my @test_data4 = (
      0,
      'option warn',
      1);
+
+    my $test_data5 = 
+"layer 0: put_record
+layer 1: encode_record
+layer 2: encode_field
+field1: value1
+field2: value2
+option binary: 0
+option warn: 1";
 ^
 
 VO: ^
@@ -1016,6 +1092,32 @@ ok: 17^
  E: $test_data1^
 ok: 18^
 
+ N: \$uut->config('binary')^
+ A: [$uut->config('binary')]^
+ E: ['binary', 0]^
+ok: 19^
+
+ N: \$slurp->{'Tie::Layers'}->{options}->{binary}^
+ A: $slurp->{'Tie::Layers'}->{options}->{binary}^
+ E: 1^
+ok: 20^
+
+ N: \$slurp->config('binary', 0)^
+ A: [$slurp->config('binary', 0)]^
+ E: ['binary', 1]^
+ok: 21^
+
+ N: \$slurp->{'Tie::Layers'}->{options}->{binary}^
+ A: $slurp->{'Tie::Layers'}->{options}->{binary}^
+ E: 0^
+ok: 22^
+
+ N: \$slurp->config('binary')^
+ A: [$slurp->config('binary')]^
+ E: ['binary', 0]^
+ok: 23^
+
+ C: unlink 'layers1.txt'^
 
 See_Also: L<Tie::Layers>^
 
@@ -1043,6 +1145,20 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+\=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
 
 \=back
 

@@ -7,8 +7,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE);
-$VERSION = '0.02';   # automatically generated file
-$DATE = '2004/05/09';
+$VERSION = '0.03';   # automatically generated file
+$DATE = '2004/05/28';
 
 
 ##### Demonstration Script ####
@@ -41,7 +41,6 @@ BEGIN {
     use Cwd;
     use File::Spec;
     use FindBin;
-    use Test::Tech qw(demo is_skip plan skip_tests tech_config );
 
     ########
     # The working directory for this script file is the directory where
@@ -65,7 +64,20 @@ BEGIN {
     #
     use lib $FindBin::Bin;
 
-    unshift @INC, File::Spec->catdir( cwd(), 'lib' ); 
+    ########
+    # Using Test::Tech, a very light layer over the module "Test" to
+    # conduct the tests.  The big feature of the "Test::Tech: module
+    # is that it takes expected and actual references and stringify
+    # them by using "Data::Secs2" before passing them to the "&Test::ok"
+    # Thus, almost any time of Perl data structures may be
+    # compared by passing a reference to them to Test::Tech::ok
+    #
+    # Create the test plan by supplying the number of tests
+    # and the todo tests
+    #
+    require Test::Tech;
+    Test::Tech->import( qw(demo finish is_skip ok ok_sub plan skip 
+                          skip_sub skip_tests tech_config) );
 
 }
 
@@ -140,7 +152,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
 \ \ \ \ \ \ \ \ \#\#\#\#\#\
 \ \ \ \ \ \ \ \ \#\ Get\ a\ snap\-short\ of\ the\ options\
 \ \ \ \ \ \ \ \ \#\
-\ \ \ \ \ \ \ \ my\ \$options\ \=\ \$self\-\>\{options\}\;\
+\ \ \ \ \ \ \ \ my\ \$options\ \=\ \$self\-\>\{\'Tie\:\:Layers\'\}\-\>\{options\}\;\
 \ \ \ \ \ \ \ \ foreach\ my\ \$key\ \(sort\ keys\ \%\$options\ \)\ \{\
 \ \ \ \ \ \ \ \ \ \ \ \ next\ if\ \$key\ \=\~\ \/\(print_record\|print_layers\|read_record\|read_layers\)\/\;\
 \ \ \ \ \ \ \ \ \ \ \ \ \$encoded_fields\ \.\=\ \"option\ \$key\:\ \$options\-\>\{\$key\}\\n\"\;\
@@ -188,7 +200,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
 \ \ \ \ \ \ \ \ \#\ Unless\ in\ strict\ mode\,\ change\ CR\ and\ LF\
 \ \ \ \ \ \ \ \ \#\ to\ end\ of\ line\ string\ for\ current\ operating\ system\
 \ \ \ \ \ \ \ \ \#\
-\ \ \ \ \ \ \ \ unless\(\ \$self\-\>\{options\}\-\>\{binary\}\ \)\ \{\
+\ \ \ \ \ \ \ \ unless\(\ \$self\-\>\{\'Tie\:\:Layers\'\}\-\>\{options\}\-\>\{binary\}\ \)\ \{\
 \ \ \ \ \ \ \ \ \ \ \ \ \$\$record\ \=\~\ s\/\\015\\012\|\\012\\015\/\\012\/g\;\ \ \#\ replace\ LFCR\ or\ CRLF\ with\ a\ LF\
 \ \ \ \ \ \ \ \ \ \ \ \ \$\$record\ \=\~\ s\/\\012\|\\015\/\\n\/g\;\ \ \ \#\ replace\ CR\ or\ LF\ with\ logical\ \\n\ \
 \ \ \ \ \ \ \ \ \}\
@@ -227,7 +239,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
 \ \ \ \ \ \ \ local\(\$\/\)\;\
 \ \ \ \ \ \ \ \$\/\ \=\ \"\\n\\\~\-\\\~\\n\"\;\
 \ \
-\ \ \ \ \ \ \ my\ \(\$fh\)\ \=\ \$self\-\>\{FH\}\;\
+\ \ \ \ \ \ \ my\ \(\$fh\)\ \=\ \$self\-\>\{\'Tie\:\:Layers\'\}\-\>\{FH\}\;\
 \ \ \ \ \ \ \ \$\!\ \=\ 0\;\
 \ \ \ \ \ \ \ my\ \$record\ \=\ \<\$fh\>\;\
 \ \ \ \ \ \ \ unless\(\$record\)\ \{\
@@ -246,7 +258,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
 \ \ \ \ sub\ print_record\
 \ \ \ \ \{\
 \ \ \ \ \ \ \ \ my\ \(\$self\,\ \$record\)\ \=\ \@_\;\
-\ \ \ \ \ \ \ \ my\ \(\$fh\)\ \=\ \$self\-\>\{FH\}\;\
+\ \ \ \ \ \ \ \ my\ \(\$fh\)\ \=\ \$self\-\>\{\'Tie\:\:Layers\'\}\-\>\{FH\}\;\
 \ \ \ \ \ \ \ \ \$record\ \.\=\ \"\\n\"\ unless\ substr\(\$record\,\ \-1\,\ 1\)\ eq\ \"\\n\"\;\
 \ \ \ \ \ \ \ \ \$\!\ \=\ 0\;\
 \ \ \ \ \ \ \ \ my\ \$success\ \=\ print\ \$fh\ \"layer\ 0\:\ put_record\\n\$record\\\~\-\\\~\\n\"\;\
@@ -301,7 +313,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
         #####
         # Get a snap-short of the options
         #
-        my $options = $self->{options};
+        my $options = $self->{'Tie::Layers'}->{options};
         foreach my $key (sort keys %$options ) {
             next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
             $encoded_fields .= "option $key: $options->{$key}\n";
@@ -349,7 +361,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
         # Unless in strict mode, change CR and LF
         # to end of line string for current operating system
         #
-        unless( $self->{options}->{binary} ) {
+        unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
             $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
             $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
         }
@@ -388,7 +400,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
        local($/);
        $/ = "\n\~-\~\n";
  
-       my ($fh) = $self->{FH};
+       my ($fh) = $self->{'Tie::Layers'}->{FH};
        $! = 0;
        my $record = <$fh>;
        unless($record) {
@@ -407,7 +419,7 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
     sub print_record
     {
         my ($self, $record) = @_;
-        my ($fh) = $self->{FH};
+        my ($fh) = $self->{'Tie::Layers'}->{FH};
         $record .= "\n" unless substr($record, -1, 1) eq "\n";
         $! = 0;
         my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -415,6 +427,8 @@ demo( "\ \ \ \ use\ File\:\:Package\;\
         $success;
     }
     my (@records, $record);   # force context; # execution
+
+
 
           my $test_data1 = 
 "layer 0: put_record
@@ -509,7 +523,18 @@ my @test_data4 = (
      'option binary',
      0,
      'option warn',
-     1);; # execution
+     1);
+
+    my $test_data5 = 
+"layer 0: put_record
+layer 1: encode_record
+layer 2: encode_field
+field1: value1
+field2: value2
+option binary: 0
+option warn: 1"; # execution
+
+ 
 
 print << "EOF";
 
@@ -522,6 +547,8 @@ EOF
 demo( "my\ \$errors\ \=\ \$fp\-\>load_package\(\$uut\)"); # typed in command           
       my $errors = $fp->load_package($uut); # execution
 
+
+
 demo( "\$errors", # typed in command           
       $errors); # execution
 
@@ -529,7 +556,9 @@ demo( "\$errors", # typed in command
 demo( "\ \ \ \ my\ \$version\ \=\ \$Tie\:\:Layers\:\:VERSION\;\
 \ \ \ \ \$version\ \=\ \'\'\ unless\ \$version\;"); # typed in command           
           my $version = $Tie::Layers::VERSION;
-    $version = '' unless $version;; # execution
+    $version = '' unless $version; # execution
+
+
 
 print << "EOF";
 
@@ -570,7 +599,9 @@ demo( "\ \ \ \ tie\ \*LAYERS\,\ \'Tie\:\:Layers\'\,\ \
         ];
 
     my $layers = tied *LAYERS;
-    unlink 'layers1.txt';; # execution
+    unlink 'layers1.txt'; # execution
+
+
 
 print << "EOF";
 
@@ -673,7 +704,9 @@ demo( "\ \ \ \ local\(\*FIN\)\;\
                 $$record;
             }
         ];
-    my $slurp = tied *FIN;; # execution
+    my $slurp = tied *FIN; # execution
+
+
 
 print << "EOF";
 
@@ -746,6 +779,8 @@ EOF
 demo( "seek\(LAYERS\,0\,0\)"); # typed in command           
       seek(LAYERS,0,0); # execution
 
+
+
 demo( "\$record\ \=\ \<LAYERS\>", # typed in command           
       $record = <LAYERS>); # execution
 
@@ -761,6 +796,8 @@ EOF
 demo( "seek\(LAYERS\,2\,0\)"); # typed in command           
       seek(LAYERS,2,0); # execution
 
+
+
 demo( "\$record\ \=\ \<LAYERS\>", # typed in command           
       $record = <LAYERS>); # execution
 
@@ -775,6 +812,8 @@ EOF
 
 demo( "seek\(LAYERS\,\-1\,1\)"); # typed in command           
       seek(LAYERS,-1,1); # execution
+
+
 
 demo( "\$record\ \=\ \<LAYERS\>", # typed in command           
       $record = <LAYERS>); # execution
@@ -801,10 +840,77 @@ print << "EOF";
 EOF
 
 demo( "\$slurp\-\>fout\(\'layers1\.txt\'\,\ \$test_data1\)\;"); # typed in command           
-      $slurp->fout('layers1.txt', $test_data1);; # execution
+      $slurp->fout('layers1.txt', $test_data1); # execution
+
+
 
 demo( "\$slurp\-\>fin\(\'layers1\.txt\'\)", # typed in command           
       $slurp->fin('layers1.txt')); # execution
+
+
+print << "EOF";
+
+ ##################
+ # \$uut->config('binary')
+ # 
+ 
+EOF
+
+demo( "\[\$uut\-\>config\(\'binary\'\)\]", # typed in command           
+      [$uut->config('binary')]); # execution
+
+
+print << "EOF";
+
+ ##################
+ # \$slurp->{'Tie::Layers'}->{options}->{binary}
+ # 
+ 
+EOF
+
+demo( "\$slurp\-\>\{\'Tie\:\:Layers\'\}\-\>\{options\}\-\>\{binary\}", # typed in command           
+      $slurp->{'Tie::Layers'}->{options}->{binary}); # execution
+
+
+print << "EOF";
+
+ ##################
+ # \$slurp->config('binary', 0)
+ # 
+ 
+EOF
+
+demo( "\[\$slurp\-\>config\(\'binary\'\,\ 0\)\]", # typed in command           
+      [$slurp->config('binary', 0)]); # execution
+
+
+print << "EOF";
+
+ ##################
+ # \$slurp->{'Tie::Layers'}->{options}->{binary}
+ # 
+ 
+EOF
+
+demo( "\$slurp\-\>\{\'Tie\:\:Layers\'\}\-\>\{options\}\-\>\{binary\}", # typed in command           
+      $slurp->{'Tie::Layers'}->{options}->{binary}); # execution
+
+
+print << "EOF";
+
+ ##################
+ # \$slurp->config('binary')
+ # 
+ 
+EOF
+
+demo( "\[\$slurp\-\>config\(\'binary\'\)\]", # typed in command           
+      [$slurp->config('binary')]); # execution
+
+
+demo( "unlink\ \'layers1\.txt\'"); # typed in command           
+      unlink 'layers1.txt'; # execution
+
 
 
 
@@ -845,6 +951,20 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+\=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
 
 \=back
 

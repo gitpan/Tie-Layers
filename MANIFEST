@@ -10,3 +10,4 @@ t/Tie/File/Package.pm
 t/Tie/Test/Tech.pm
 t/Tie/Data/Secs2.pm
 t/Tie/Data/Str2Num.pm
+t/Tie/Data/Startup.pm

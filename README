@@ -5,10 +5,23 @@ SYNOPSIS
      #####
      # Subroutines
      #
-     use Tie::Layers qw(is_handle);
+     use Tie::Layers qw(is_handle config);
 
      $yes = is_handle( $file_handle );
 
+     ($key, $old_value) = config(\%options, $key);
+     ($key, $old_value) = config(\%options, $key => $new_value ); 
+
+     ####
+     # Config default startup options
+     #
+     @old_options_list = config(\%options, @option_list);
+     @old_options_list = config(\%options, \@option_list);
+     @old_options_list = config(\%options, \%option_list);
+
+     #####
+     # Class interface
+     #
      require Tie::Layers;
 
      #####
@@ -23,6 +36,13 @@ SYNOPSIS
      # Using support methods only, no file subroutines
      # 
      $layers = Tie::Layers->TIEHANDLE(@options);
+
+     ($key, $old_value) = $layers->config($key); 
+     ($key, $old_value) = $layers->config($key => $new_value );  
+
+     @old_options_list = $layers->config(@option_list); 
+     @old_options_list = $layers->config(\@option_list); 
+     @old_options_list = $layers->config(\%option_list);
 
      $data = $layers->fin($filename, @options);
 
@@ -65,6 +85,20 @@ DESCRIPTION
      print_record =>   undef,             print to $file
      read_layers  =>   [],                stack of readline subroutines
      read_record  =>   \&layer_readline,  read a line from $file
+
+    The "Tie::Layers" package is a foundation that is inherited by other
+    packages. The object data hash must be shared by other classes. To
+    provide a orderly method of allocating object data space, the options
+    for the "Tie::Layers" class are stored in the following hash:
+
+     $self->{'Tie::Layers'}->{options}
+
+    This is public data that may be accessed directly or by using the
+    "config" subroutine. Future design changes of the "options" data will
+    emphasize backward compatibility. The private data for the "Tie::Layers"
+    classes is restricted all other members of "$self-"{'Tie::Layers}>. As
+    with all private data, future design changes will emphasize performance
+    over backward compatibility.
 
   readline stack
 
@@ -142,15 +176,36 @@ DESCRIPTION
 
     The "$lineref" may be either a scalar text or any valid Perl reference.
 
-  open
+  config
 
-     open  (LAYERS_FILEHANDLE, $mode, $filename, @options)
-     open  (LAYERS_FILEHANDLE, "$mode$filename", @options)
+     ($key, $old_value) = config(\%options, $key);
+     ($key, $old_value) = config(\%options, $key => $new_value ); 
 
-    When using a "LAYERS_FILEHANDLE" tied to the "Tie::Layers" package
-    methods with a c<open> subroutine, the "open" subroutine will process
-    "Tie::Layers" package "@options" and the "$filename" may be either a
-    file name or a file handle to the underlying file.
+     ####
+     # Config default startup options
+     #
+     @old_options_list = config(\%options, @option_list);
+     @old_options_list = config(\%options, \@option_list);
+     @old_options_list = config(\%options, \%option_list);
+
+    The "Tie::Layers" package maintains global startup (default) options.
+    When the "TIEHANDLE" method creates a new "Tie::Layers" object, the
+    "TIEHANLE" method sets options for the object,
+    "$self-"{'Tie::Layers'}->{options} to the startup (default) optins.
+
+    The "config" subroutine/method can read and modify either the startup
+    options or the individual options of a "Tie::Layers" object. When used
+    as a subroutine or class or a object without hash data, the "config"
+    subroutine/method access the startup options; otherwise, it accesses the
+    "Tie::Layers" options.
+
+    The "config" subroutine/method responses with no inputs with all the
+    "$key,$value" pairs in "\%options"; a single "$key" input with the
+    "$key,$value" for that "$key"; and, a group of "$key, $value" pairs,
+    "@option_list" by replacing all the "$option" "$key" in the group by the
+    paired <$value> returning the "@old_options_list" of old "$key,$value"
+    pairs. The "config" method does not care if the "@option_list" is an
+    array, a reference to an array or a reference to a hash.
 
   fin
 
@@ -235,7 +290,7 @@ DEMONSTRATION
              #####
              # Get a snap-short of the options
              #
-             my $options = $self->{options};
+             my $options = $self->{'Tie::Layers'}->{options};
              foreach my $key (sort keys %$options ) {
                  next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
                  $encoded_fields .= "option $key: $options->{$key}\n";
@@ -282,7 +337,7 @@ DEMONSTRATION
              # Unless in strict mode, change CR and LF
              # to end of line string for current operating system
              #
-             unless( $self->{options}->{binary} ) {
+             unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
                  $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
                  $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
              }
@@ -321,7 +376,7 @@ DEMONSTRATION
             local($/);
             $/ = "\n\~-\~\n";
 
-            my ($fh) = $self->{FH};
+            my ($fh) = $self->{'Tie::Layers'}->{FH};
             $! = 0;
             my $record = <$fh>;
             unless($record) {
@@ -340,7 +395,7 @@ DEMONSTRATION
          sub print_record
          {
              my ($self, $record) = @_;
-             my ($fh) = $self->{FH};
+             my ($fh) = $self->{'Tie::Layers'}->{FH};
              $record .= "\n" unless substr($record, -1, 1) eq "\n";
              $! = 0;
              my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -357,18 +412,18 @@ DEMONSTRATION
      $errors
 
      # ''
-     #
+     # 
          my $version = $Tie::Layers::VERSION;
          $version = '' unless $version;
 
      ##################
-     # Tie::Layers Version 0.03 loaded
+     # Tie::Layers Version 0.05 loaded
      # 
 
      $fp->is_package_loaded($uut)
 
      # 1
-     #
+     # 
          tie *LAYERS, 'Tie::Layers', 
              print_record => \&print_record, # layer 0
              print_layers => [
@@ -391,7 +446,7 @@ DEMONSTRATION
      open( \*LAYERS,'>layers1.txt')
 
      # 1
-     #
+     # 
 
      ##################
      # print LAYERS [qw(field1 value1 field2 value2)]
@@ -400,7 +455,7 @@ DEMONSTRATION
      (print LAYERS [qw(field1 value1 field2 value2)])
 
      # '1'
-     #
+     # 
 
      ##################
      # print LAYERS [qw(field3 value3)]
@@ -409,7 +464,7 @@ DEMONSTRATION
      (print LAYERS [qw(field3 value3)])
 
      # '1'
-     #
+     # 
 
      ##################
      # print LAYERS [qw(field4 value4 field5 value5 field6 value6)]
@@ -418,7 +473,7 @@ DEMONSTRATION
      (print LAYERS [qw(field4 value4 field5 value5 field6 value6)])
 
      # '1'
-     #
+     # 
 
      ##################
      # print close(LAYERS)
@@ -427,7 +482,7 @@ DEMONSTRATION
      close(LAYERS)
 
      # 1
-     #
+     # 
          local(*FIN);
          tie *FIN, 'Tie::Layers', 
              binary => 1,
@@ -457,31 +512,31 @@ DEMONSTRATION
      $slurp->fin('layers1.txt')
 
      # 'layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field1: value1
-     #field2: value2
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field3: value3
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field4: value4
-     #field5: value5
-     #field6: value6
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #'
-     #
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field1: value1
+     # field2: value2
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # layer 0: put_record
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field3: value3
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # layer 0: put_record
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field4: value4
+     # field5: value5
+     # field6: value6
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # '
+     # 
 
      ##################
      # open( *LAYERS,'<layers1.txt')
@@ -490,7 +545,7 @@ DEMONSTRATION
      open( \*LAYERS,'<layers1.txt')
 
      # 1
-     #
+     # 
 
      ##################
      # readline record 1
@@ -499,28 +554,28 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field1',
-     #          'value1',
-     #          'field2',
-     #          'value2',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field1',
+     #           'value1',
+     #           'field2',
+     #           'value2',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # readline record 2
@@ -529,26 +584,26 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field3',
-     #          'value3',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field3',
+     #           'value3',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # readline record 3
@@ -557,30 +612,30 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field4',
-     #          'value4',
-     #          'field5',
-     #          'value5',
-     #          'field6',
-     #          'value6',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field4',
+     #           'value4',
+     #           'field5',
+     #           'value5',
+     #           'field6',
+     #           'value6',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # seek(LAYERS,0,0)
@@ -590,28 +645,28 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field1',
-     #          'value1',
-     #          'field2',
-     #          'value2',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field1',
+     #           'value1',
+     #           'field2',
+     #           'value2',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # seek(LAYERS,2,0)
@@ -621,30 +676,30 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field4',
-     #          'value4',
-     #          'field5',
-     #          'value5',
-     #          'field6',
-     #          'value6',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field4',
+     #           'value4',
+     #           'field5',
+     #           'value5',
+     #           'field6',
+     #           'value6',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # seek(LAYERS,-1,1)
@@ -654,26 +709,26 @@ DEMONSTRATION
      $record = <LAYERS>
 
      # [
-     #          'layer 2',
-     #          'decode_field',
-     #          'layer 1',
-     #          'decode_record',
-     #          'layer 0',
-     #          'get_record',
-     #          'layer 0',
-     #          'put_record',
-     #          'layer 1',
-     #          'encode_record',
-     #          'layer 2',
-     #          'encode_field',
-     #          'field3',
-     #          'value3',
-     #          'option binary',
-     #          '0',
-     #          'option warn',
-     #          '1'
-     #        ]
-     #
+     #           'layer 2',
+     #           'decode_field',
+     #           'layer 1',
+     #           'decode_record',
+     #           'layer 0',
+     #           'get_record',
+     #           'layer 0',
+     #           'put_record',
+     #           'layer 1',
+     #           'encode_record',
+     #           'layer 2',
+     #           'encode_field',
+     #           'field3',
+     #           'value3',
+     #           'option binary',
+     #           '0',
+     #           'option warn',
+     #           '1'
+     #         ]
+     # 
 
      ##################
      # readline close(LAYERS)
@@ -682,7 +737,7 @@ DEMONSTRATION
      close(LAYERS)
 
      # 1
-     #
+     # 
 
      ##################
      # Verify fout content
@@ -692,31 +747,86 @@ DEMONSTRATION
      $slurp->fin('layers1.txt')
 
      # 'layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field1: value1
-     #field2: value2
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field3: value3
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #layer 0: put_record
-     #layer 1: encode_record
-     #layer 2: encode_field
-     #field4: value4
-     #field5: value5
-     #field6: value6
-     #option binary: 0
-     #option warn: 1
-     #~-~
-     #'
-     #
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field1: value1
+     # field2: value2
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # layer 0: put_record
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field3: value3
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # layer 0: put_record
+     # layer 1: encode_record
+     # layer 2: encode_field
+     # field4: value4
+     # field5: value5
+     # field6: value6
+     # option binary: 0
+     # option warn: 1
+     # ~-~
+     # '
+     # 
+
+     ##################
+     # $uut->config('binary')
+     # 
+
+     [$uut->config('binary')]
+
+     # [
+     #           'binary',
+     #           0
+     #         ]
+     # 
+
+     ##################
+     # $slurp->{'Tie::Layers'}->{options}->{binary}
+     # 
+
+     $slurp->{'Tie::Layers'}->{options}->{binary}
+
+     # 1
+     # 
+
+     ##################
+     # $slurp->config('binary', 0)
+     # 
+
+     [$slurp->config('binary', 0)]
+
+     # [
+     #           'binary',
+     #           1
+     #         ]
+     # 
+
+     ##################
+     # $slurp->{'Tie::Layers'}->{options}->{binary}
+     # 
+
+     $slurp->{'Tie::Layers'}->{options}->{binary}
+
+     # 0
+     # 
+
+     ##################
+     # $slurp->config('binary')
+     # 
+
+     [$slurp->config('binary')]
+
+     # [
+     #           'binary',
+     #           0
+     #         ]
+     # 
+     unlink 'layers1.txt'
 
 QUALITY ASSURANCE
     Running the test script "Layers.t" verifies the requirements for this
@@ -796,11 +906,11 @@ Title Page
 
      Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of subroutine layers
 
-     Revision: D
+     Revision: E
 
-     Version: 0.05
+     Version: 0.06
 
-     Date: 2004/05/21
+     Date: 2004/05/28
 
      Prepared for: General Public 
 
@@ -839,7 +949,7 @@ Title Page
 
   1.3 Document overview.
 
-    This document releases Tie::Layers version 0.05 providing a description
+    This document releases Tie::Layers version 0.06 providing a description
     of the inventory, installation instructions and other information
     necessary to utilize and track this release.
 
@@ -851,7 +961,7 @@ Title Page
 
     This document releases the file
 
-     Tie-Layers-0.05.tar.gz
+     Tie-Layers-0.06.tar.gz
 
     found at the following repository(s):
 
@@ -908,18 +1018,19 @@ Title Page
 
      file                                                         version date       comment
      ------------------------------------------------------------ ------- ---------- ------------------------
-     lib/Docs/Site_SVD/Tie_Layers.pm                              0.05    2004/05/21 revised 0.04
-     MANIFEST                                                     0.05    2004/05/21 generated, replaces 0.04
-     Makefile.PL                                                  0.05    2004/05/21 generated, replaces 0.04
-     README                                                       0.05    2004/05/21 generated, replaces 0.04
-     lib/Tie/Layers.pm                                            0.05    2004/05/21 revised 0.04
-     t/Tie/Layers.pm                                              0.01    2004/05/09 unchanged
-     t/Tie/Layers.t                                               0.01    2004/05/09 unchanged
-     t/Tie/Layers.d                                               0.01    2004/05/09 unchanged
-     t/Tie/File/Package.pm                                        1.17    2004/05/21 revised 1.16
-     t/Tie/Test/Tech.pm                                           1.26    2004/05/21 revised 1.22
-     t/Tie/Data/Secs2.pm                                          1.26    2004/05/21 revised 1.2
-     t/Tie/Data/Str2Num.pm                                        0.07    2004/05/21 new
+     lib/Docs/Site_SVD/Tie_Layers.pm                              0.06    2004/05/28 revised 0.05
+     MANIFEST                                                     0.06    2004/05/28 generated, replaces 0.05
+     Makefile.PL                                                  0.06    2004/05/28 generated, replaces 0.05
+     README                                                       0.06    2004/05/28 generated, replaces 0.05
+     lib/Tie/Layers.pm                                            0.06    2004/05/28 revised 0.05
+     t/Tie/Layers.pm                                              0.03    2004/05/28 revised 0.02
+     t/Tie/Layers.t                                               0.03    2004/05/28 revised 0.02
+     t/Tie/Layers.d                                               0.03    2004/05/28 revised 0.02
+     t/Tie/File/Package.pm                                        1.18    2004/05/28 unchanged
+     t/Tie/Test/Tech.pm                                           1.27    2004/05/28 revised 1.26
+     t/Tie/Data/Secs2.pm                                          1.26    2004/05/28 unchanged
+     t/Tie/Data/Str2Num.pm                                        0.08    2004/05/28 unchanged
+     t/Tie/Data/Startup.pm                                        0.08    2004/05/28 new
 
   3.3 Changes
 
@@ -966,6 +1077,12 @@ Title Page
         Also drop the "Data::SecsPack" version for "Math::BigFloat" down
         from 1.40 to 1.39.
 
+    Tie::Layers 0.06
+        Add the "config" subroutine. Redesigned the internal data
+        structures. Set aside a unique hash member for "Tie::Layers" class
+        options in the hash data used by both the "Tie::Layers" class and
+        any class that inherits the "Tie::Layers" class.
+
   3.4 Adaptation data.
 
     This installation requires that the installation site has the Perl
@@ -998,12 +1115,12 @@ Title Page
           http://www.softwarediamonds/packages/
           http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-        Right click on 'Tie-Layers-0.05.tar.gz' and download to a temporary
+        Right click on 'Tie-Layers-0.06.tar.gz' and download to a temporary
         installation directory. Enter the following where $make is 'nmake'
         for microsoft windows; otherwise 'make'.
 
-         gunzip Tie-Layers-0.05.tar.gz
-         tar -xf Tie-Layers-0.05.tar
+         gunzip Tie-Layers-0.06.tar.gz
+         tar -xf Tie-Layers-0.06.tar
          perl Makefile.PL
          $make test
          $make install
@@ -1015,7 +1132,7 @@ Title Page
          http://packages.softwarediamonds.com
 
     Prerequistes.
-         'Data::Startup' => '0.02',
+         'Data::Startup' => '0.08',
 
     Security, privacy, or safety precautions.
         None.

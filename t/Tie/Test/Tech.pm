@@ -15,8 +15,8 @@ use Data::Str2Num 0.05;
 use Data::Startup 0.03;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.26';
-$DATE = '2004/05/21';
+$VERSION = '1.27';
+$DATE = '2004/05/28';
 $FILE = __FILE__;
 
 use vars qw(@ISA @EXPORT_OK);
@@ -127,7 +127,7 @@ sub demo
   
    $Data::Dumper::Terse = 1;
    my $data = Dumper(@expression);
-   $data =~ s/(\n+)/$1 #/g;
+   $data =~ s/(\n)/$1 # /g;
    $data =~ s/\\\\/\\/g;
    $data =~ s/\\'/'/g;
 

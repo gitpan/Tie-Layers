@@ -10,24 +10,25 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.05';
-$DATE = '2004/05/21';
+$VERSION = '0.06';
+$DATE = '2004/05/28';
 $FILE = __FILE__;
 
 use vars qw(%INVENTORY);
 %INVENTORY = (
-    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.05 2004/05/21), 'revised 0.04'],
-    'MANIFEST' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
-    'Makefile.PL' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
-    'README' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
-    'lib/Tie/Layers.pm' => [qw(0.05 2004/05/21), 'revised 0.04'],
-    't/Tie/Layers.pm' => [qw(0.01 2004/05/09), 'unchanged'],
-    't/Tie/Layers.t' => [qw(0.01 2004/05/09), 'unchanged'],
-    't/Tie/Layers.d' => [qw(0.01 2004/05/09), 'unchanged'],
-    't/Tie/File/Package.pm' => [qw(1.17 2004/05/21), 'revised 1.16'],
-    't/Tie/Test/Tech.pm' => [qw(1.26 2004/05/21), 'revised 1.22'],
-    't/Tie/Data/Secs2.pm' => [qw(1.26 2004/05/21), 'revised 1.2'],
-    't/Tie/Data/Str2Num.pm' => [qw(0.07 2004/05/21), 'new'],
+    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.06 2004/05/28), 'revised 0.05'],
+    'MANIFEST' => [qw(0.06 2004/05/28), 'generated, replaces 0.05'],
+    'Makefile.PL' => [qw(0.06 2004/05/28), 'generated, replaces 0.05'],
+    'README' => [qw(0.06 2004/05/28), 'generated, replaces 0.05'],
+    'lib/Tie/Layers.pm' => [qw(0.06 2004/05/28), 'revised 0.05'],
+    't/Tie/Layers.pm' => [qw(0.03 2004/05/28), 'revised 0.02'],
+    't/Tie/Layers.t' => [qw(0.03 2004/05/28), 'revised 0.02'],
+    't/Tie/Layers.d' => [qw(0.03 2004/05/28), 'revised 0.02'],
+    't/Tie/File/Package.pm' => [qw(1.18 2004/05/28), 'unchanged'],
+    't/Tie/Test/Tech.pm' => [qw(1.27 2004/05/28), 'revised 1.26'],
+    't/Tie/Data/Secs2.pm' => [qw(1.26 2004/05/28), 'unchanged'],
+    't/Tie/Data/Str2Num.pm' => [qw(0.08 2004/05/28), 'unchanged'],
+    't/Tie/Data/Startup.pm' => [qw(0.08 2004/05/28), 'new'],
 
 );
 
@@ -58,11 +59,11 @@ Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of s
 
  Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of subroutine layers
 
- Revision: D
+ Revision: E
 
- Version: 0.05
+ Version: 0.06
 
- Date: 2004/05/21
+ Date: 2004/05/28
 
  Prepared for: General Public 
 
@@ -105,7 +106,7 @@ in the underlying file and not the character position in the file.
 
 =head2 1.3 Document overview.
 
-This document releases Tie::Layers version 0.05
+This document releases Tie::Layers version 0.06
 providing a description of the inventory, installation
 instructions and other information necessary to
 utilize and track this release.
@@ -120,7 +121,7 @@ system file specification.
 
 This document releases the file 
 
- Tie-Layers-0.05.tar.gz
+ Tie-Layers-0.06.tar.gz
 
 found at the following repository(s):
 
@@ -207,18 +208,19 @@ consists of the following files:
 
  file                                                         version date       comment
  ------------------------------------------------------------ ------- ---------- ------------------------
- lib/Docs/Site_SVD/Tie_Layers.pm                              0.05    2004/05/21 revised 0.04
- MANIFEST                                                     0.05    2004/05/21 generated, replaces 0.04
- Makefile.PL                                                  0.05    2004/05/21 generated, replaces 0.04
- README                                                       0.05    2004/05/21 generated, replaces 0.04
- lib/Tie/Layers.pm                                            0.05    2004/05/21 revised 0.04
- t/Tie/Layers.pm                                              0.01    2004/05/09 unchanged
- t/Tie/Layers.t                                               0.01    2004/05/09 unchanged
- t/Tie/Layers.d                                               0.01    2004/05/09 unchanged
- t/Tie/File/Package.pm                                        1.17    2004/05/21 revised 1.16
- t/Tie/Test/Tech.pm                                           1.26    2004/05/21 revised 1.22
- t/Tie/Data/Secs2.pm                                          1.26    2004/05/21 revised 1.2
- t/Tie/Data/Str2Num.pm                                        0.07    2004/05/21 new
+ lib/Docs/Site_SVD/Tie_Layers.pm                              0.06    2004/05/28 revised 0.05
+ MANIFEST                                                     0.06    2004/05/28 generated, replaces 0.05
+ Makefile.PL                                                  0.06    2004/05/28 generated, replaces 0.05
+ README                                                       0.06    2004/05/28 generated, replaces 0.05
+ lib/Tie/Layers.pm                                            0.06    2004/05/28 revised 0.05
+ t/Tie/Layers.pm                                              0.03    2004/05/28 revised 0.02
+ t/Tie/Layers.t                                               0.03    2004/05/28 revised 0.02
+ t/Tie/Layers.d                                               0.03    2004/05/28 revised 0.02
+ t/Tie/File/Package.pm                                        1.18    2004/05/28 unchanged
+ t/Tie/Test/Tech.pm                                           1.27    2004/05/28 revised 1.26
+ t/Tie/Data/Secs2.pm                                          1.26    2004/05/28 unchanged
+ t/Tie/Data/Str2Num.pm                                        0.08    2004/05/28 unchanged
+ t/Tie/Data/Startup.pm                                        0.08    2004/05/28 new
 
 
 =head2 3.3 Changes
@@ -272,6 +274,13 @@ Thus, the test software will not longer be requiring C<Math::BigFloat>.
 Also drop the C<Data::SecsPack> version for C<Math::BigFloat> down from
 1.40 to 1.39.
 
+=item Tie::Layers 0.06
+
+Add the C<config> subroutine. Redesigned the internal data structures.
+Set aside a unique hash member for C<Tie::Layers> class options in
+the hash data used by both the C<Tie::Layers> class and any class that
+inherits the C<Tie::Layers> class.
+
 =back
 
 =head2 3.4 Adaptation data.
@@ -310,13 +319,13 @@ Enter one of the following repositories in a web browser:
   http://www.softwarediamonds/packages/
   http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-Right click on 'Tie-Layers-0.05.tar.gz' and download to a temporary
+Right click on 'Tie-Layers-0.06.tar.gz' and download to a temporary
 installation directory.
 Enter the following where $make is 'nmake' for microsoft
 windows; otherwise 'make'.
 
- gunzip Tie-Layers-0.05.tar.gz
- tar -xf Tie-Layers-0.05.tar
+ gunzip Tie-Layers-0.06.tar.gz
+ tar -xf Tie-Layers-0.06.tar
  perl Makefile.PL
  $make test
  $make install
@@ -329,7 +338,7 @@ not install, download and install unxutils from
 
 =item Prerequistes.
 
- 'Data::Startup' => '0.02',
+ 'Data::Startup' => '0.08',
 
 
 =item Security, privacy, or safety precautions.
@@ -394,11 +403,11 @@ extension for a Perl test script file
 __DATA__
 
 DISTNAME: Tie-Layers^
-VERSION : 0.05^
+VERSION : 0.06^
 FREEZE: 1^
 PREVIOUS_DISTNAME: ^
-PREVIOUS_RELEASE: 0.04^
-REVISION: D ^
+PREVIOUS_RELEASE: 0.05^
+REVISION: E ^
 
 AUTHOR  : SoftwareDiamonds.com E<lt>support@SoftwareDiamonds.comE<gt>^
 ABSTRACT: read and write files pipelined through a stack of subroutine layers^
@@ -431,12 +440,13 @@ lib/File/Package.pm => t/Tie/File/Package.pm
 lib/Test/Tech.pm => t/Tie/Test/Tech.pm
 lib/Data/Secs2.pm => t/Tie/Data/Secs2.pm
 lib/Data/Str2Num.pm => t/Tie/Data/Str2Num.pm
+lib/Data/Startup.pm => t/Tie/Data/Startup.pm
 ^
 
 REPLACE:  ^
 
 PREREQ_PM: 
-'Data::Startup' => '0.02',
+'Data::Startup' => '0.08',
 ^
 README_PODS: lib/Tie/Layers.pm^
 
@@ -492,6 +502,13 @@ Thus, the test software will not longer be requiring C<Math::BigFloat>.
 
 Also drop the C<Data::SecsPack> version for C<Math::BigFloat> down from
 1.40 to 1.39.
+
+\=item Tie::Layers 0.06
+
+Add the C<config> subroutine. Redesigned the internal data structures.
+Set aside a unique hash member for C<Tie::Layers> class options in
+the hash data used by both the C<Tie::Layers> class and any class that
+inherits the C<Tie::Layers> class.
 
 \=back
 
@@ -647,6 +664,14 @@ SEE_ALSO:
 HTML:
 ^
 ~-~
+
+
+
+
+
+
+
+
 
 
 

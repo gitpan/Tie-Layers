@@ -8,14 +8,15 @@ use 5.001;
 use strict;
 use warnings;
 use warnings::register;
+use attributes;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.05';
-$DATE = '2004/05/21';
+$VERSION = '0.06';
+$DATE = '2004/05/28';
 $FILE = __FILE__;
 
 use File::Spec;
-use Data::Startup 0.02;
+use Data::Startup 0.08;
 
 use Exporter;
 use vars qw(@ISA @EXPORT_OK);
@@ -23,16 +24,15 @@ use vars qw(@ISA @EXPORT_OK);
 @EXPORT_OK = qw(is_handle);
 
 use vars qw($default_options);
-$default_options =  Tie::Layers->defaults();
+$default_options= defaults();
 
 #######
-# Object used to set default, startup, options values.
+# 
 #
 sub defaults
 {
-   my $class = shift;
-   $class = ref($class) if ref($class);
-   my $self = $class->Data::Startup::new(   
+   my $class =  UNIVERSAL::isa($_[0],__PACKAGE__) ? shift : '';
+   my %options = (   
       binary => 0,
       warn => 1,
       print_layers => [],
@@ -40,8 +40,9 @@ sub defaults
       read_layers => [],
       read_record => \&layer_readline,
    );
-   $self->Data::Startup::override(@_);
-
+   my $options = Data::Startup::override(\%options,@_);
+   $options = bless $options, $class if $class;
+   $options;      
 }
 
 
@@ -50,13 +51,12 @@ sub defaults
 #
 sub fin
 {
-   my $event;
    my ($layer, $file, @options) = @_;
    $default_options = Tie::Layers->default() unless $default_options;
-   my $options = $default_options->Data::Startup::override($layer->{options});
-   $options = $options->Data::Startup::override(@options);
+   my $options = Data::Startup::override($default_options, $layer->{'Tie::Layers'}->{options});
+   $options = Data::Startup::override($options, @options);
 
-   $layer->{event} = '';
+   $layer->{current_event} = '';
    goto EVENT unless OPEN($layer, '<', $file, $options);
    $layer->{current_event} = '';
    my $data = join '', $layer->READLINE( );
@@ -65,12 +65,12 @@ sub fin
    return $data;
 
 EVENT:
-   $event = $layer->{event};
-   $event .= "\tTie::Layer::fin $VERSION\n";  
+   $layer->{current_event} .= "\tTie::Layer::fin $VERSION\n";
    if($options->warn) {
-       warn( $event );
+       warn( $layer->{current_event} );
        return undef;
-   }         
+   }   
+   my $event = $layer->{event};      
    return \$event;
 }
 
@@ -83,24 +83,23 @@ sub fout
 {
    my ($layer, $file, $data, @options) = @_;
    $default_options = Tie::Layers->default() unless $default_options;
-   my $options = $default_options->Data::Startup::override($layer->{options});
-   $options = $options->Data::Startup::override(@options);
+   my $options = Data::Startup::override($default_options, $layer->{'Tie::Layers'}->{options});
+   $options = Data::Startup::override($options, @options);
 
    my $fh;
-   $layer->{event} = '';
+   $layer->{current_event} = '';
    goto EVENT unless OPEN($layer, '>', $file, $options);
    goto EVENT unless PRINT($layer, $data );
    goto EVENT unless CLOSE($layer);
    return '';
 
 EVENT:
-   my $event = $layer->{event};
-   $event .= "\tTie::Layers::fout $VERSION\n";  
+   $layer->{current_event} .= "\tTie::Layers::fout $VERSION\n";  
    if($options->warn) {
-       warn( $event );
+       warn( $layer->{current_event} );
        return undef;
    }         
-   $event;
+   $layer->{event};
 }
 
 
@@ -125,7 +124,7 @@ sub is_handle
 sub layer_readline
 {
     my ($self) = @_;
-    my ($fh) = $self->{FH};
+    my ($fh) = $self->{'Tie::Layers'}->{FH};
     <$fh>;
 } 
 
@@ -136,18 +135,44 @@ sub layer_readline
 sub BINMODE
 {
      my $self = shift;
-     my $fh = $self->{FH};
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
-        $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::Layers::BINMODE() $VERSION\n";
-        if($self->{warn}) {
-            warn($self->{event});
-        }
+        my $event = "No open file handle\n";
+        $event .= "\tTie::Layers::BINMODE() $VERSION\n";
+        $self->{event} .= $event;
+        warn($event) if $self->{'Tie::Layers'}->{warn};
         return undef;
      }
      binmode $fh;
 }
+
+
+######
+# Configuration
+#
+sub config
+{
+     $default_options = defaults() unless $default_options;
+     my $options; 
+     if( UNIVERSAL::isa($_[0],__PACKAGE__) ) {
+         my $self = shift;
+         if(ref($self) && attributes::reftype($self) eq 'HASH') {
+             $options = $self->{'Tie::Layers'}->{options};
+         }
+         else {
+             $options = $default_options;
+         }
+     }
+     elsif( ref($_[0]) eq 'HASH' ) {
+         $options = shift;  
+     }
+     else {
+         $options = $default_options;
+     }
+     Data::Startup::config($options,@_);
+}
+
 
 
 #####
@@ -155,27 +180,25 @@ sub BINMODE
 #
 sub CLOSE
 {
-     my $event = '';
      my($self) = @_;
-     my $fh = $self->{FH};
+     $self->{current_event} = '';
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         return undef unless $self->{event};
         return undef if $self->{event} =~ /No open file handle/;
-        $event = "No open file handle\n";
+        $self->{current_event} = "No open file handle\n";
         goto EVENT;
      }
      my $success = close($fh);
-     $self->{FH} = undef;
+     $self->{'Tie::Layers'}->{FH} = undef;
      return 1 if $success;
      return 0 if $self->{event} =~ /Bad close/;
-     $event .= "Bad close\n\t$!\n";
+     $self->{current_event} = "Bad close\n\t$!\n";
 
 EVENT:
-     $self->{event} .= $event;
-     $self->{event} .= "\tTie::Layers::CLOSE() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} .= "\tTie::Layers::CLOSE() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -200,14 +223,13 @@ sub DESTROY
 sub EOF
 {
      my $self = shift;
-     my $fh = $self->{FH};
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
-        $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::Layers::EOF() $VERSION\n";
-        if($self->{warn}) {
-            warn($self->{event});
-        }
+        $self->{current_event} = "No open file handle\n";
+        $self->{current_event}  .= "\tTie::Layers::EOF() $VERSION\n";
+        $self->{event} .= $self->{current_event};
+        warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
         return undef;
      }
      eof($fh);
@@ -222,14 +244,13 @@ sub EOF
 sub FILENO
 {
      my $self = shift;
-     my $fh = $self->{FH};
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         return undef if $self->{event} =~ /No open file handle/;
-        $self->{event} .= "No open file handle\n";
-        $self->{event} .= "\tTie::Layers::FILENO() $VERSION\n";
-        if($self->{warn}) {
-            warn($self->{event});
-        }
+        $self->{current_event} = "No open file handle\n";
+        $self->{current_event} .= "\tTie::Layers::FILENO() $VERSION\n";
+        $self->{event} .= $self->{current_event};
+        warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
         return undef;
      }
      fileno($fh);
@@ -243,11 +264,10 @@ sub GETC
 {
      my $self = shift; 
      return undef if $self->{event} =~ /GETC not supported/;
-     $self->{event} .= "GETC not supported.\n";
-     $self->{event} .= "\tTie::Layers::GETC() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} = "GETC not supported.\n";
+     $self->{current_event} .= "\tTie::Layers::GETC() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -263,41 +283,41 @@ sub OPEN
      # Make a copy so change without impacting
      # the using variables.
      #
-     my $event;
      my ($self, $file, @options) = @_;
+     $self->{current_event} = '';
      unless (defined $file) {
-        $event = "No inputs\n";
+        $self->{current_event} = "No inputs\n";
         goto EVENT;
      }
 
      #####
      # clean out the object data
      #
-     my $fh = $self->{FH};
+     my $fh = $self->{'Tie::Layers'}->{FH};
      close{$fh} if $fh;
-     $self->{FH} = undef;
+     $self->{'Tie::Layers'}->{FH} = undef;
      $self->{event} = '';
-     $self->{recmap} = [0];
-     $self->{rec} = 0;
+     $self->{'Tie::Layers'}->{recmap} = [0];
+     $self->{'Tie::Layers'}->{rec} = 0;
 
    
      $file =~ s/^\s*([<>+|]+)\s*//;
      my $mode = $1;
-     $self->{mode} = $mode;
+     $self->{'Tie::Layers'}->{mode} = $mode;
      $file = shift @options unless $file;
-     $self->{file} = $file;
+     $self->{'Tie::Layers'}->{file} = $file;
 
      $default_options = Tie::Layers->default() unless $default_options;
-     $self->{options} = $default_options->Data::Startup::override($self->{options});
-     $self->{options} = $self->{options}->Data::Startup::override(@options);
-     my $options = $self->{options};
-
+     my $options = Data::Startup::override($default_options, $self->{'Tie::Layers'}->{options});
+     $options = Data::Startup::override($options,@options);
+     $self->{'Tie::Layers'}->{options} = $options;
+ 
      ######
      # Open the table file
      #    
      if( is_handle($file) ) {
-         $self->{file} = '';
-         $self->{FH} = $file; 
+         $self->{'Tie::Layers'}->{file} = '';
+         $self->{'Tie::Layers'}->{FH} = $file; 
      }
 
      else {
@@ -305,29 +325,27 @@ sub OPEN
         my $fh; 
         $self->CLOSE;
         $self->{event} = '';
-        unless ( open( $fh, $self->{mode}, $file,) ) {
-            $event = "Cannot open $file\n\t$!";
-            while(chomp($event)) {};
-            $event .= "\n";
+        unless ( open( $fh, $self->{'Tie::Layers'}->{mode}, $file,) ) {
+            $self->{current_event} = "Cannot open $file\n\t$!";
+            while(chomp($self->{current_event})) {};
+            $self->{current_event} .= "\n";
             goto EVENT;
         }
-        $self->{FH} = $fh;
-        $self->{file} = $file;
+        $self->{'Tie::Layers'}->{FH} = $fh;
+        $self->{'Tie::Layers'}->{file} = $file;
      }
 
      ##########
      # binary 
      #
-     binmode $self->{FH} if $self->{options}->{binary}; 
-     $self->{file_abs} = File::Spec->rel2abs( $self->{file} ) if $self->{file};
+     binmode $self->{'Tie::Layers'}->{FH} if $self->{'Tie::Layers'}->{options}->{binary}; 
+     $self->{'Tie::Layers'}->{file_abs} = File::Spec->rel2abs( $self->{'Tie::Layers'}->{file} ) if $self->{'Tie::Layers'}->{file};
      return 1;
 
 EVENT:
-     $self->{event} = $event;
-     $self->{event} .= "\tTie::Layers::OPEN() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} .= "\tTie::Layers::OPEN() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -338,16 +356,17 @@ EVENT:
 #
 sub PRINT
 {
-     my $event;
      my $self = shift;   
-     my $fh = $self->{FH};
+     $self->{current_event} = '';
+     my $fh = $self->{'Tie::Layers'}->{FH};
       unless ($fh) {
         $self->{current_event} = "No open file handle\n";
         goto EVENT;
      }
      my ($fieldref);
-     my @print_layers = reverse @{$self->{options}->{print_layers}};
-     foreach $fieldref (@_) {
+     my @print_layers = reverse @{$self->{'Tie::Layers'}->{options}->{print_layers}};
+     my @records = @_;
+     foreach $fieldref (@records) {
          foreach (@print_layers ) {
              $self->{current_event} = '';
              $fieldref = &$_($self, $fieldref);
@@ -360,9 +379,9 @@ sub PRINT
              $fieldref = join '',@$fieldref;
          }
      }
-     my $buf = join(defined $, ? $, : '', @_);
+     my $buf = join(defined $, ? $, : '', @records);
      $buf .= $\ if defined $\;
-     my $print_record = $self->{options}->{print_record};
+     my $print_record = $self->{'Tie::Layers'}->{options}->{print_record};
      my $success = 0;
      $self->{current_event} = '';
      if($print_record) {
@@ -372,17 +391,15 @@ sub PRINT
          $success = print $fh $buf;
      }
      goto EVENT if $self->{current_event};
-     $self->{rec}++;
-     $self->{recmap}->[$self->{rec}] = tell($fh);
+     $self->{'Tie::Layers'}->{rec}++;
+     $self->{'Tie::Layers'}->{recmap}->[$self->{'Tie::Layers'}->{rec}] = tell($fh);
      return $success if $success;
      $self->{current_event} = "Bad write.\n\t$!\n";
 
 EVENT:
+     $self->{current_event} .= "\tTie::Layers::PRINT() $VERSION\n";
      $self->{event} .= $self->{current_event};
-     $self->{event} .= "\tTie::Layers::PRINT() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -403,11 +420,10 @@ sub READ
 {
      my $self = shift; 
      return undef if $self->{event} =~ /READ not supported/;
-     $self->{event} .= "READ not supported.\n";
-     $self->{event} .= "\tTie::Layers::READ() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} = "READ not supported.\n";
+     $self->{current_event} .= "\tTie::Layers::READ() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -417,7 +433,8 @@ sub READ
 sub READLINE
 {
      my($self) = @_;
-     my $fh = $self->{FH};
+     $self->{current_event} = '';
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         $self->{current_event} = "No open file handle\n";
         goto EVENT;
@@ -426,15 +443,15 @@ sub READLINE
      my $wantarray = wantarray( );
      my ($lineref,$line);
       my @lines = ();
-     my $read_record = $self->{options}->{read_record};
+     my $read_record = $self->{'Tie::Layers'}->{options}->{read_record};
      $read_record = $read_record ? $read_record : \&layer_readline;
      do {
          $lineref = \$line;
          $$lineref = &$read_record($self, $fh);
          if($line) {
-             $self->{rec}++;
-             $self->{recmap}->[$self->{rec}] = tell($fh);
-             foreach (@{$self->{options}->{read_layers}}) {
+             $self->{'Tie::Layers'}->{rec}++;
+             $self->{'Tie::Layers'}->{recmap}->[$self->{'Tie::Layers'}->{rec}] = tell($fh);
+             foreach (@{$self->{'Tie::Layers'}->{options}->{read_layers}}) {
                  $self->{current_event} = '';
                  $lineref = &$_($self, $lineref);
                  goto EVENT if $self->{current_event};
@@ -448,11 +465,9 @@ sub READLINE
      return $lines[0];
 
 EVENT:
+     $self->{current_event} .= "\tTie::Layers::READLINE() $VERSION\n";
      $self->{event} .= $self->{current_event};
-     $self->{event} .= "\tTie::Layers::READLINE() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -462,12 +477,12 @@ EVENT:
 #
 sub SEEK
 {
-     my $event;
      my ($self, $offset, $whence) = @_;
-     my $fh = $self->{FH};
+     $self->{current_event} = '';
+     my $fh = $self->{'Tie::Layers'}->{FH};
      unless ($fh) {
         return undef if $self->{event} && $self->{event} =~ /No open file handle/;
-        $self->{event} .= "No open file handle\n";
+        $self->{current_event}  = "No open file handle\n";
         goto EVENT;
      }
 
@@ -487,26 +502,25 @@ sub SEEK
            } while ($line);
            goto EVENT unless defined($line);
         }
-        $position = $self->{rec};
+        $position = $self->{'Tie::Layers'}->{rec};
      }
 
      $position += $offset;
      if($position < 0) {
-        $self->{event} .= "Seek before beginning of file.\n";
+        $self->{current_event} = "Seek before beginning of file.\n";
         goto EVENT;
      }
-     elsif( @{$self->{recmap}} <= $position ) {
-        $self->{event} .= "Seek after end of file.\n";
+     elsif( @{$self->{'Tie::Layers'}->{recmap}} <= $position ) {
+        $self->{current_event} = "Seek after end of file.\n";
         goto EVENT;
      }         
-     return seek($fh,$self->{recmap}->[$position],0);
+     return seek($fh,$self->{'Tie::Layers'}->{recmap}->[$position],0);
 
 
 EVENT:
-     $self->{event} .= "\tTie::Layers::SEEK() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} .= "\tTie::Layers::SEEK() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -518,7 +532,7 @@ EVENT:
 sub TELL
 {
     my $self = shift;
-    $self->{rec};
+    $self->{'Tie::Layers'}->{rec};
 }
 
 
@@ -536,10 +550,9 @@ sub TIEHANDLE
      # If there is ref($class) than $class
      # is an object whose class is ref($class).
      # 
-     $class = ref($class) if ref($class); 
-     my $self = bless {}, $class;
-     $default_options = Tie::Layers->default() unless $default_options;
-     $self->{options} = $default_options->Data::Startup::override(@_);
+     my $self = ref($class) ? $class : bless {},$class;
+     $default_options = default() unless $default_options;
+     $self->{'Tie::Layers'}->{options} = Data::Startup::override($default_options, @_);
      $self;
 }
 
@@ -550,11 +563,10 @@ sub WRITE
 {
      my $self = shift; 
      return undef if $self->{event} =~ /WRITE not supported/;
-     $self->{event} .= "WRITE not supported.\n";
-     $self->{event} .= "\tTie::Layers::WRITE() $VERSION\n";
-     if($self->{warn}) {
-         warn($self->{event});
-     }
+     $self->{current_event} = "WRITE not supported.\n";
+     $self->{current_event} .= "\tTie::Layers::WRITE() $VERSION\n";
+     $self->{event} .= $self->{current_event};
+     warn($self->{current_event}) if $self->{'Tie::Layers'}->{warn};
      undef;
 }
 
@@ -572,10 +584,23 @@ __END__
  #####
  # Subroutines
  #
- use Tie::Layers qw(is_handle);
+ use Tie::Layers qw(is_handle config);
 
  $yes = is_handle( $file_handle );
 
+ ($key, $old_value) = config(\%options, $key);
+ ($key, $old_value) = config(\%options, $key => $new_value ); 
+
+ ####
+ # Config default startup options
+ #
+ @old_options_list = config(\%options, @option_list);
+ @old_options_list = config(\%options, \@option_list);
+ @old_options_list = config(\%options, \%option_list);
+
+ #####
+ # Class interface
+ #
  require Tie::Layers;
 
  #####
@@ -586,10 +611,18 @@ __END__
  tie *LAYERS_FILEHANDLE, 'Tie::Layers', @options
  $layers = tied \*LAYERS_FILEHANDLE; 
 
+
  #####
  # Using support methods only, no file subroutines
  # 
  $layers = Tie::Layers->TIEHANDLE(@options);
+
+ ($key, $old_value) = $layers->config($key); 
+ ($key, $old_value) = $layers->config($key => $new_value );  
+
+ @old_options_list = $layers->config(@option_list); 
+ @old_options_list = $layers->config(\@option_list); 
+ @old_options_list = $layers->config(\%option_list);
 
  $data = $layers->fin($filename, @options);
 
@@ -634,6 +667,24 @@ following options:
  print_record =>   undef,             print to $file
  read_layers  =>   [],                stack of readline subroutines
  read_record  =>   \&layer_readline,  read a line from $file
+
+The C<Tie::Layers> package is a foundation that is inherited by other
+packages. 
+The object data hash must be shared by other classes. 
+To provide a orderly method of allocating object data space,
+the options for the C<Tie::Layers> class are stored in the
+following hash:
+
+ $self->{'Tie::Layers'}->{options}
+
+This is public data that may be accessed directly or by using the
+C<config> subroutine.
+Future design changes of the C<options> data will emphasize
+backward compatibility.
+The private data for the C<Tie::Layers> classes is restricted
+all other members of C<$self->{'Tie::Layers}>. 
+As with all private data, future design changes will
+emphasize performance over backward compatibility.
 
 =head2 readline stack
 
@@ -718,16 +769,41 @@ Events are passed from the layer routines by as follows:
 The C<$lineref> may be either a scalar text or any valid
 Perl reference.
 
-=head2 open
+=head2 config
 
- open  (LAYERS_FILEHANDLE, $mode, $filename, @options)
- open  (LAYERS_FILEHANDLE, "$mode$filename", @options)
+ ($key, $old_value) = config(\%options, $key);
+ ($key, $old_value) = config(\%options, $key => $new_value ); 
 
-When using a C<LAYERS_FILEHANDLE> tied to the C<Tie::Layers>
-package methods with a c<open> subroutine, 
-the C<open> subroutine will process 
-C<Tie::Layers> package C<@options> and the C<$filename> may
-be either a file name or a file handle to the underlying file.
+ ####
+ # Config default startup options
+ #
+ @old_options_list = config(\%options, @option_list);
+ @old_options_list = config(\%options, \@option_list);
+ @old_options_list = config(\%options, \%option_list);
+
+The C<Tie::Layers> package maintains global startup (default) 
+options. 
+When the C<TIEHANDLE> method creates a new
+C<Tie::Layers> object, the C<TIEHANLE> method
+sets options for the object,
+C<$self->{'Tie::Layers'}->{options} to the
+startup (default) optins.
+
+The C<config> subroutine/method can read and modify either
+the startup options or the individual options of a 
+C<Tie::Layers> object.
+When used as a subroutine or class or a object without
+hash data, the C<config> subroutine/method access the
+startup options; otherwise, it accesses the 
+C<Tie::Layers> options.
+
+The C<config> subroutine/method responses with no inputs with all the C<$key,$value>
+pairs in C<\%options>; a single C<$key> input with the C<$key,$value>
+for that C<$key>; and, a group of C<$key, $value> pairs, C<@option_list>
+by replacing all the C<$option> C<$key> in the group by the paired <$value> returning
+the C<@old_options_list> of old C<$key,$value> pairs.
+The C<config> method does not care if the C<@option_list> is an
+array, a reference to an array or a reference to a hash.
 
 =head2 fin
 
@@ -814,7 +890,7 @@ follow on the next lines as comments. For example,
          #####
          # Get a snap-short of the options
          #
-         my $options = $self->{options};
+         my $options = $self->{'Tie::Layers'}->{options};
          foreach my $key (sort keys %$options ) {
              next if $key =~ /(print_record|print_layers|read_record|read_layers)/;
              $encoded_fields .= "option $key: $options->{$key}\n";
@@ -861,7 +937,7 @@ follow on the next lines as comments. For example,
          # Unless in strict mode, change CR and LF
          # to end of line string for current operating system
          #
-         unless( $self->{options}->{binary} ) {
+         unless( $self->{'Tie::Layers'}->{options}->{binary} ) {
              $$record =~ s/\015\012|\012\015/\012/g;  # replace LFCR or CRLF with a LF
              $$record =~ s/\012|\015/\n/g;   # replace CR or LF with logical \n 
          }
@@ -900,7 +976,7 @@ follow on the next lines as comments. For example,
         local($/);
         $/ = "\n\~-\~\n";
 
-        my ($fh) = $self->{FH};
+        my ($fh) = $self->{'Tie::Layers'}->{FH};
         $! = 0;
         my $record = <$fh>;
         unless($record) {
@@ -919,7 +995,7 @@ follow on the next lines as comments. For example,
      sub print_record
      {
          my ($self, $record) = @_;
-         my ($fh) = $self->{FH};
+         my ($fh) = $self->{'Tie::Layers'}->{FH};
          $record .= "\n" unless substr($record, -1, 1) eq "\n";
          $! = 0;
          my $success = print $fh "layer 0: put_record\n$record\~-\~\n";
@@ -936,18 +1012,18 @@ follow on the next lines as comments. For example,
  $errors
 
  # ''
- #
+ # 
      my $version = $Tie::Layers::VERSION;
      $version = '' unless $version;
 
  ##################
- # Tie::Layers Version 0.03 loaded
+ # Tie::Layers Version 0.05 loaded
  # 
 
  $fp->is_package_loaded($uut)
 
  # 1
- #
+ # 
      tie *LAYERS, 'Tie::Layers', 
          print_record => \&print_record, # layer 0
          print_layers => [
@@ -970,7 +1046,7 @@ follow on the next lines as comments. For example,
  open( \*LAYERS,'>layers1.txt')
 
  # 1
- #
+ # 
 
  ##################
  # print LAYERS [qw(field1 value1 field2 value2)]
@@ -979,7 +1055,7 @@ follow on the next lines as comments. For example,
  (print LAYERS [qw(field1 value1 field2 value2)])
 
  # '1'
- #
+ # 
 
  ##################
  # print LAYERS [qw(field3 value3)]
@@ -988,7 +1064,7 @@ follow on the next lines as comments. For example,
  (print LAYERS [qw(field3 value3)])
 
  # '1'
- #
+ # 
 
  ##################
  # print LAYERS [qw(field4 value4 field5 value5 field6 value6)]
@@ -997,7 +1073,7 @@ follow on the next lines as comments. For example,
  (print LAYERS [qw(field4 value4 field5 value5 field6 value6)])
 
  # '1'
- #
+ # 
 
  ##################
  # print close(LAYERS)
@@ -1006,7 +1082,7 @@ follow on the next lines as comments. For example,
  close(LAYERS)
 
  # 1
- #
+ # 
      local(*FIN);
      tie *FIN, 'Tie::Layers', 
          binary => 1,
@@ -1036,31 +1112,31 @@ follow on the next lines as comments. For example,
  $slurp->fin('layers1.txt')
 
  # 'layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field1: value1
- #field2: value2
- #option binary: 0
- #option warn: 1
- #~-~
- #layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field3: value3
- #option binary: 0
- #option warn: 1
- #~-~
- #layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field4: value4
- #field5: value5
- #field6: value6
- #option binary: 0
- #option warn: 1
- #~-~
- #'
- #
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field1: value1
+ # field2: value2
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # layer 0: put_record
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field3: value3
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # layer 0: put_record
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field4: value4
+ # field5: value5
+ # field6: value6
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # '
+ # 
 
  ##################
  # open( *LAYERS,'<layers1.txt')
@@ -1069,7 +1145,7 @@ follow on the next lines as comments. For example,
  open( \*LAYERS,'<layers1.txt')
 
  # 1
- #
+ # 
 
  ##################
  # readline record 1
@@ -1078,28 +1154,28 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field1',
- #          'value1',
- #          'field2',
- #          'value2',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field1',
+ #           'value1',
+ #           'field2',
+ #           'value2',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # readline record 2
@@ -1108,26 +1184,26 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field3',
- #          'value3',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field3',
+ #           'value3',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # readline record 3
@@ -1136,30 +1212,30 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field4',
- #          'value4',
- #          'field5',
- #          'value5',
- #          'field6',
- #          'value6',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field4',
+ #           'value4',
+ #           'field5',
+ #           'value5',
+ #           'field6',
+ #           'value6',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # seek(LAYERS,0,0)
@@ -1169,28 +1245,28 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field1',
- #          'value1',
- #          'field2',
- #          'value2',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field1',
+ #           'value1',
+ #           'field2',
+ #           'value2',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # seek(LAYERS,2,0)
@@ -1200,30 +1276,30 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field4',
- #          'value4',
- #          'field5',
- #          'value5',
- #          'field6',
- #          'value6',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field4',
+ #           'value4',
+ #           'field5',
+ #           'value5',
+ #           'field6',
+ #           'value6',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # seek(LAYERS,-1,1)
@@ -1233,26 +1309,26 @@ follow on the next lines as comments. For example,
  $record = <LAYERS>
 
  # [
- #          'layer 2',
- #          'decode_field',
- #          'layer 1',
- #          'decode_record',
- #          'layer 0',
- #          'get_record',
- #          'layer 0',
- #          'put_record',
- #          'layer 1',
- #          'encode_record',
- #          'layer 2',
- #          'encode_field',
- #          'field3',
- #          'value3',
- #          'option binary',
- #          '0',
- #          'option warn',
- #          '1'
- #        ]
- #
+ #           'layer 2',
+ #           'decode_field',
+ #           'layer 1',
+ #           'decode_record',
+ #           'layer 0',
+ #           'get_record',
+ #           'layer 0',
+ #           'put_record',
+ #           'layer 1',
+ #           'encode_record',
+ #           'layer 2',
+ #           'encode_field',
+ #           'field3',
+ #           'value3',
+ #           'option binary',
+ #           '0',
+ #           'option warn',
+ #           '1'
+ #         ]
+ # 
 
  ##################
  # readline close(LAYERS)
@@ -1261,7 +1337,7 @@ follow on the next lines as comments. For example,
  close(LAYERS)
 
  # 1
- #
+ # 
 
  ##################
  # Verify fout content
@@ -1271,31 +1347,86 @@ follow on the next lines as comments. For example,
  $slurp->fin('layers1.txt')
 
  # 'layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field1: value1
- #field2: value2
- #option binary: 0
- #option warn: 1
- #~-~
- #layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field3: value3
- #option binary: 0
- #option warn: 1
- #~-~
- #layer 0: put_record
- #layer 1: encode_record
- #layer 2: encode_field
- #field4: value4
- #field5: value5
- #field6: value6
- #option binary: 0
- #option warn: 1
- #~-~
- #'
- #
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field1: value1
+ # field2: value2
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # layer 0: put_record
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field3: value3
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # layer 0: put_record
+ # layer 1: encode_record
+ # layer 2: encode_field
+ # field4: value4
+ # field5: value5
+ # field6: value6
+ # option binary: 0
+ # option warn: 1
+ # ~-~
+ # '
+ # 
+
+ ##################
+ # $uut->config('binary')
+ # 
+
+ [$uut->config('binary')]
+
+ # [
+ #           'binary',
+ #           0
+ #         ]
+ # 
+
+ ##################
+ # $slurp->{'Tie::Layers'}->{options}->{binary}
+ # 
+
+ $slurp->{'Tie::Layers'}->{options}->{binary}
+
+ # 1
+ # 
+
+ ##################
+ # $slurp->config('binary', 0)
+ # 
+
+ [$slurp->config('binary', 0)]
+
+ # [
+ #           'binary',
+ #           1
+ #         ]
+ # 
+
+ ##################
+ # $slurp->{'Tie::Layers'}->{options}->{binary}
+ # 
+
+ $slurp->{'Tie::Layers'}->{options}->{binary}
+
+ # 0
+ # 
+
+ ##################
+ # $slurp->config('binary')
+ # 
+
+ [$slurp->config('binary')]
+
+ # [
+ #           'binary',
+ #           0
+ #         ]
+ # 
+ unlink 'layers1.txt'
 
 =head1 QUALITY ASSURANCE
 
