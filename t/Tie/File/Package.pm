@@ -11,8 +11,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '1.16';
-$DATE = '2004/05/07';
+$VERSION = '1.17';
+$DATE = '2004/05/21';
 $FILE = __FILE__;
 
 use File::Spec;
@@ -547,6 +547,21 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
+
 
 =back
 

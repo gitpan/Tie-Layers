@@ -9,4 +9,4 @@ t/Tie/Layers.d
 t/Tie/File/Package.pm
 t/Tie/Test/Tech.pm
 t/Tie/Data/Secs2.pm
-t/Tie/Data/SecsPack.pm
+t/Tie/Data/Str2Num.pm

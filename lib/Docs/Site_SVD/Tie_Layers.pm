@@ -10,24 +10,24 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE );
-$VERSION = '0.04';
-$DATE = '2004/05/10';
+$VERSION = '0.05';
+$DATE = '2004/05/21';
 $FILE = __FILE__;
 
 use vars qw(%INVENTORY);
 %INVENTORY = (
-    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.04 2004/05/10), 'revised 0.03'],
-    'MANIFEST' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
-    'Makefile.PL' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
-    'README' => [qw(0.04 2004/05/10), 'generated, replaces 0.03'],
-    'lib/Tie/Layers.pm' => [qw(0.04 2004/05/10), 'revised 0.03'],
+    'lib/Docs/Site_SVD/Tie_Layers.pm' => [qw(0.05 2004/05/21), 'revised 0.04'],
+    'MANIFEST' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
+    'Makefile.PL' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
+    'README' => [qw(0.05 2004/05/21), 'generated, replaces 0.04'],
+    'lib/Tie/Layers.pm' => [qw(0.05 2004/05/21), 'revised 0.04'],
     't/Tie/Layers.pm' => [qw(0.01 2004/05/09), 'unchanged'],
     't/Tie/Layers.t' => [qw(0.01 2004/05/09), 'unchanged'],
     't/Tie/Layers.d' => [qw(0.01 2004/05/09), 'unchanged'],
-    't/Tie/File/Package.pm' => [qw(1.16 2004/05/10), 'unchanged'],
-    't/Tie/Test/Tech.pm' => [qw(1.22 2004/05/10), 'unchanged'],
-    't/Tie/Data/Secs2.pm' => [qw(1.2 2004/05/10), 'unchanged'],
-    't/Tie/Data/SecsPack.pm' => [qw(0.05 2004/05/10), 'unchanged'],
+    't/Tie/File/Package.pm' => [qw(1.17 2004/05/21), 'revised 1.16'],
+    't/Tie/Test/Tech.pm' => [qw(1.26 2004/05/21), 'revised 1.22'],
+    't/Tie/Data/Secs2.pm' => [qw(1.26 2004/05/21), 'revised 1.2'],
+    't/Tie/Data/Str2Num.pm' => [qw(0.07 2004/05/21), 'new'],
 
 );
 
@@ -46,19 +46,23 @@ use vars qw(%INVENTORY);
 
 
 
+=head1 NAME
+
+Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of subroutine layers
+
 =head1 Title Page
 
  Software Version Description
 
  for
 
- Tie::Layers - read and write files pipelined through a stack of subroutine layers
+ Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of subroutine layers
 
- Revision: C
+ Revision: D
 
- Version: 0.04
+ Version: 0.05
 
- Date: 2004/05/10
+ Date: 2004/05/21
 
  Prepared for: General Public 
 
@@ -101,7 +105,7 @@ in the underlying file and not the character position in the file.
 
 =head2 1.3 Document overview.
 
-This document releases Tie::Layers version 0.04
+This document releases Tie::Layers version 0.05
 providing a description of the inventory, installation
 instructions and other information necessary to
 utilize and track this release.
@@ -116,7 +120,7 @@ system file specification.
 
 This document releases the file 
 
- Tie-Layers-0.04.tar.gz
+ Tie-Layers-0.05.tar.gz
 
 found at the following repository(s):
 
@@ -160,6 +164,21 @@ disclaimer in the documentation and/or
 other materials provided with the
 distribution.
 
+=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
+
+
 =back
 
 SOFTWARE DIAMONDS, http://www.SoftwareDiamonds.com,
@@ -188,18 +207,18 @@ consists of the following files:
 
  file                                                         version date       comment
  ------------------------------------------------------------ ------- ---------- ------------------------
- lib/Docs/Site_SVD/Tie_Layers.pm                              0.04    2004/05/10 revised 0.03
- MANIFEST                                                     0.04    2004/05/10 generated, replaces 0.03
- Makefile.PL                                                  0.04    2004/05/10 generated, replaces 0.03
- README                                                       0.04    2004/05/10 generated, replaces 0.03
- lib/Tie/Layers.pm                                            0.04    2004/05/10 revised 0.03
+ lib/Docs/Site_SVD/Tie_Layers.pm                              0.05    2004/05/21 revised 0.04
+ MANIFEST                                                     0.05    2004/05/21 generated, replaces 0.04
+ Makefile.PL                                                  0.05    2004/05/21 generated, replaces 0.04
+ README                                                       0.05    2004/05/21 generated, replaces 0.04
+ lib/Tie/Layers.pm                                            0.05    2004/05/21 revised 0.04
  t/Tie/Layers.pm                                              0.01    2004/05/09 unchanged
  t/Tie/Layers.t                                               0.01    2004/05/09 unchanged
  t/Tie/Layers.d                                               0.01    2004/05/09 unchanged
- t/Tie/File/Package.pm                                        1.16    2004/05/10 unchanged
- t/Tie/Test/Tech.pm                                           1.22    2004/05/10 unchanged
- t/Tie/Data/Secs2.pm                                          1.2     2004/05/10 unchanged
- t/Tie/Data/SecsPack.pm                                       0.05    2004/05/10 unchanged
+ t/Tie/File/Package.pm                                        1.17    2004/05/21 revised 1.16
+ t/Tie/Test/Tech.pm                                           1.26    2004/05/21 revised 1.22
+ t/Tie/Data/Secs2.pm                                          1.26    2004/05/21 revised 1.2
+ t/Tie/Data/Str2Num.pm                                        0.07    2004/05/21 new
 
 
 =head2 3.3 Changes
@@ -226,6 +245,32 @@ Added C<Data::Startup> as perquisite.
 =item Tie::Layers-0.04
 
 Perquisite did not make it into 0.03. Try again.
+
+=item Tie::Layers-0.05
+
+Test Failure:
+
+ From: mhoyt@houston.rr.com 
+ Subject: FAIL Tie-Layers-0.04 darwin-thread-multi-2level 7.0 
+
+ t/Tie/Layers.t
+ t/Tie/Layers....Math::BigFloat version 1.4 required--this is only version 1.39 
+
+Annalysis:
+
+This is because using C<Data::Secs2> to stringify test results for comparision.
+The C<Data::Secs2> includes C<Data::SecsPack> which includes C<Math::BigFloat>.
+There C<Makerfile.PL> prerequisite is only for the Unit Under Test (UUT) software,
+not the test software.
+
+Corrective Action:
+
+Since C<Data::SecsPack> is not needed for C<Data::Secs2> stringify, 
+rewrote C<Data::Secs2> to include C<Data::SecsPack> only if needed. 
+Thus, the test software will not longer be requiring C<Math::BigFloat>.
+
+Also drop the C<Data::SecsPack> version for C<Math::BigFloat> down from
+1.40 to 1.39.
 
 =back
 
@@ -265,13 +310,13 @@ Enter one of the following repositories in a web browser:
   http://www.softwarediamonds/packages/
   http://www.perl.com/CPAN/authors/id/S/SO/SOFTDIA/
 
-Right click on 'Tie-Layers-0.04.tar.gz' and download to a temporary
+Right click on 'Tie-Layers-0.05.tar.gz' and download to a temporary
 installation directory.
 Enter the following where $make is 'nmake' for microsoft
 windows; otherwise 'make'.
 
- gunzip Tie-Layers-0.04.tar.gz
- tar -xf Tie-Layers-0.04.tar
+ gunzip Tie-Layers-0.05.tar.gz
+ tar -xf Tie-Layers-0.05.tar
  perl Makefile.PL
  $make test
  $make install
@@ -347,16 +392,17 @@ extension for a Perl test script file
 1;
 
 __DATA__
+
 DISTNAME: Tie-Layers^
-VERSION : 0.04^
+VERSION : 0.05^
 FREEZE: 1^
 PREVIOUS_DISTNAME: ^
-PREVIOUS_RELEASE: 0.03^
-REVISION: C ^
+PREVIOUS_RELEASE: 0.04^
+REVISION: D ^
 
 AUTHOR  : SoftwareDiamonds.com E<lt>support@SoftwareDiamonds.comE<gt>^
 ABSTRACT: read and write files pipelined through a stack of subroutine layers^
-TITLE   : Tie::Layers - read and write files pipelined through a stack of subroutine layers^
+TITLE   : Docs::Site_SVD::Tie_Layers - read and write files pipelined through a stack of subroutine layers^
 END_USER: General Public^
 COPYRIGHT: copyright 2004 Software Diamonds^
 CLASSIFICATION: NONE^
@@ -384,7 +430,7 @@ t/Tie/Layers.d
 lib/File/Package.pm => t/Tie/File/Package.pm
 lib/Test/Tech.pm => t/Tie/Test/Tech.pm
 lib/Data/Secs2.pm => t/Tie/Data/Secs2.pm
-lib/Data/SecsPack.pm => t/Tie/Data/SecsPack.pm
+lib/Data/Str2Num.pm => t/Tie/Data/Str2Num.pm
 ^
 
 REPLACE:  ^
@@ -420,6 +466,32 @@ Added C<Data::Startup> as perquisite.
 \=item Tie::Layers-0.04
 
 Perquisite did not make it into 0.03. Try again.
+
+\=item Tie::Layers-0.05
+
+Test Failure:
+
+ From: mhoyt@houston.rr.com 
+ Subject: FAIL Tie-Layers-0.04 darwin-thread-multi-2level 7.0 
+
+ t/Tie/Layers.t
+ t/Tie/Layers....Math::BigFloat version 1.4 required--this is only version 1.39 
+
+Annalysis:
+
+This is because using C<Data::Secs2> to stringify test results for comparision.
+The C<Data::Secs2> includes C<Data::SecsPack> which includes C<Math::BigFloat>.
+There C<Makerfile.PL> prerequisite is only for the Unit Under Test (UUT) software,
+not the test software.
+
+Corrective Action:
+
+Since C<Data::SecsPack> is not needed for C<Data::Secs2> stringify, 
+rewrote C<Data::Secs2> to include C<Data::SecsPack> only if needed. 
+Thus, the test software will not longer be requiring C<Math::BigFloat>.
+
+Also drop the C<Data::SecsPack> version for C<Math::BigFloat> down from
+1.40 to 1.39.
 
 \=back
 
@@ -473,6 +545,21 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+\=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
+
 
 \=back
 
@@ -560,6 +647,10 @@ SEE_ALSO:
 HTML:
 ^
 ~-~
+
+
+
+
 
 
 

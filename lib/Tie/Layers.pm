@@ -10,8 +10,8 @@ use warnings;
 use warnings::register;
 
 use vars qw($VERSION $DATE $FILE);
-$VERSION = '0.04';
-$DATE = '2004/05/10';
+$VERSION = '0.05';
+$DATE = '2004/05/21';
 $FILE = __FILE__;
 
 use File::Spec;
@@ -244,7 +244,7 @@ sub GETC
      my $self = shift; 
      return undef if $self->{event} =~ /GETC not supported/;
      $self->{event} .= "GETC not supported.\n";
-     $self->{event} .= "\tTie::Layers::READ() $VERSION\n";
+     $self->{event} .= "\tTie::Layers::GETC() $VERSION\n";
      if($self->{warn}) {
          warn($self->{event});
      }
@@ -1363,6 +1363,20 @@ this list of conditions and the following
 disclaimer in the documentation and/or
 other materials provided with the
 distribution.
+
+=item 3
+
+Commercial installation of the binary or source
+must visually present to the installer 
+the above copyright notice,
+this list of conditions intact,
+that the original source is available
+at http://softwarediamonds.com
+and provide means
+for the installer to actively accept
+the list of conditions; 
+otherwise, a license fee must be paid to
+Softwareware Diamonds.
 
 =back
 
